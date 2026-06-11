@@ -1,0 +1,53 @@
+Phase 1 — Understand What You're Actually Building
+
+You are NOT building:
+
+Gmail clone
+Google Calendar clone
+
+You ARE building:
+
+Better workflow than Gmail
+Better workflow than Calendar
+Powered by Corsair
+
+Think of it as:
+
+User
+ ↓
+Your UI
+ ↓
+AI Agent
+ ↓
+Corsair
+ ↓
+Gmail + Calendar
+
+
+Phase 2 — Backend Architecture First
+
+Tech Stack:
+
+Next.js
+Postgres
+Prisma
+Corsair
+OpenAI/Claude
+
+Folder idea:
+
+src/
+ ├── app/
+ ├── actions/
+ ├── lib/
+ │    ├── corsair.ts
+ │    ├── db.ts
+ │    ├── ai.ts
+ │
+ ├── services/
+ │    ├── email.service.ts
+ │    ├── calendar.service.ts
+ │    ├── agent.service.ts
+ │
+ ├── db/
+ │    ├── schema.prisma

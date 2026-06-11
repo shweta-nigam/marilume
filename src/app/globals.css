@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+
+:root {
+  --background: #08090d;
+
+  --surface: #11131a;
+  --surface-elevated: #161922;
+
+  --border: #232633;
+  --sub-border:#bd0633
+
+  --primary: #f01c70;
+  --secondary: #bd0633;
+
+  --text: #ffffff;
+  --text-secondary: #a3a8b8;
+
+   --font-body: var(--font-inter);
+  --font-heading: var(--font-poppins);
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-primary: var(--primary);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-secondary: var(--text-secondary);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+}
+
+/* notes for styles  */
+/* 1. 
+ poppins font family for the heading and section titles other text will use inter font family
+*/
+
+
+/*2.  Rule:
+
+If a component can be reused:
+
+components/ui
+
+If it belongs to one feature:
+
+features/inbox/components
+
+
+*/
