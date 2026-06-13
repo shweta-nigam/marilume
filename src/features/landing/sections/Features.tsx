@@ -10,7 +10,7 @@ export default function FeaturesSection() {
       icon: <FiMail />,
       title: "Email that organizes itself",
       description:
-        "Pelora prioritizes important conversations, drafts replies, and surfaces actions before they become problems.",
+        "Marilume prioritizes important conversations, drafts replies, and surfaces actions before they become problems.",
     },
     {
       icon: <FiCalendar />,

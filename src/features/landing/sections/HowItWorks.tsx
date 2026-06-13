@@ -12,21 +12,21 @@ export default function HowItWorksSection() {
       icon: <FiLink />,
       title: "Connect your tools",
       description:
-        "Securely connect Gmail, Calendar, and the tools you already use. Pelora instantly begins understanding your workflow and priorities.",
+        "Securely connect Gmail, Calendar, and the tools you already use. Marilume instantly begins understanding your workflow and priorities.",
     },
     {
       number: "02",
       icon: <FiTarget />,
       title: "Define what matters",
       description:
-        "Tell Pelora what deserves your attention, what can be automated, and how you prefer work to be organized.",
+        "Tell Marilume what deserves your attention, what can be automated, and how you prefer work to be organized.",
     },
     {
       number: "03",
       icon: <FiZap />,
       title: "AI handles the coordination",
       description:
-        "Pelora prioritizes requests, manages follow-ups, organizes tasks, and executes repetitive workflows behind the scenes.",
+        "Marilume prioritizes requests, manages follow-ups, organizes tasks, and executes repetitive workflows behind the scenes.",
     },
     {
       number: "04",
@@ -38,7 +38,7 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <section className="relative overflow-hidden py-40">
+    <section className="relative overflow-hidden bg-background/40 py-40">
       {/* Background Glow */}
       <div className="absolute left-1/2 top-1/3 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-primary/10 blur-[180px]" />
 
@@ -85,7 +85,7 @@ export default function HowItWorksSection() {
               text-text-secondary
             "
           >
-            Connect your tools once. Pelora continuously organizes,
+            Connect your tools once. Marilume continuously organizes,
             prioritizes, and executes the work that matters most.
           </p>
         </div>
