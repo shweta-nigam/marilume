@@ -34,7 +34,7 @@ export default function ProblemsSection() {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-background py-32">
+   <section className="relative overflow-hidden bg-background/40 py-32">
       {/* Glow */}
       <div className="absolute left-1/2 top-40 h-[400px] w-[400px] -translate-x-1/2 rounded-full bg-primary/10 blur-[140px]" />
 

@@ -1,21 +1,24 @@
 // LandingPage.tsximport Navbar from "./components/Navbar";
 
+import BackgroundVideo from "@/components/BackgroundVideo";
 import Hero from "./landing/sections/Hero";
 import ProblemsSection from "./landing/sections/Problem";
+import FeaturesSection from "./landing/sections/Features";
+import HowItWorksSection from "./landing/sections/HowItWorks";
 
 // import Features from "./sections/Features";
 // import Footer from "../components/Footer";
 
 export default function LandingPage() {
   return (
-    <main className="relative">
+    <>
       <BackgroundVideo />
 
       <Hero />
       <ProblemsSection />
       <FeaturesSection />
-      <TestimonialsSection />
-      <CTASection />
-    </main>
+      <HowItWorksSection />
+      {/* <CTASection /> */}
+    </>
   );
 }

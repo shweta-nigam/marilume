@@ -7,11 +7,9 @@ export default function Hero() {
   const [videoLoaded, setVideoLoaded] = useState(false);
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-background">
+    <section className="relative min-h-screen overflow-hidden">
       {/* BACKGROUND */}
       <div className="absolute inset-0">
-        {/* Main Gradient */}
-        <div className="absolute inset-0 bg-background" />
 
         {/* Pink Glow */}
         <div
@@ -48,41 +46,9 @@ export default function Hero() {
           }}
         />
       </div>
-
-      {/* POSTER IMAGE */}
-      <div className="absolute inset-0">
-        <Image
-          src="/images/hero-backup-bg.png"
-          alt="Pelora Dashboard"
-          fill
-          priority
-          className="object-cover opacity-25"
-        />
-      </div>
-
-      {/* VIDEO */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        poster="/images/hero-poster.webp"
-        onLoadedData={() => setVideoLoaded(true)}
-        className={`
-          absolute inset-0
-          h-full w-full
-          object-cover
-          transition-opacity
-          duration-1000
-          ${videoLoaded ? "opacity-50" : "opacity-0"}
-        `}
-      >
-        <source src="/videos/bg-video.mp4" type="video/mp4" />
-      </video>
-
       
       {/* OVERLAY */}
-<div className="absolute inset-0 bg-black/50" />
+{/* <div className="absolute inset-0 bg-black/50" /> */}
 
 {/* HERO CONTENT */}
 <div className="relative z-10 flex min-h-screen items-center justify-center px-6">
