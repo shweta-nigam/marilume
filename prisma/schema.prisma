@@ -32,8 +32,8 @@ model EmailAccount {
   id           String        @id @default(cuid())
   emailAddress String
   provider     EmailProvider
-  accessToken  String?
-  refreshToken String?
+  
+  
   userId       String
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -230,3 +230,13 @@ model Verification {
   @@index([identifier])
   @@map("verification")
 }
+
+
+model WebhookLog {
+  id        String   @id @default(cuid())
+  eventType String
+  payload   Json
+  createdAt DateTime @default(now())
+}
+
+// 

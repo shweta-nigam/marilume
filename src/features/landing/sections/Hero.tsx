@@ -52,7 +52,7 @@ export default function Hero() {
       {/* POSTER IMAGE */}
       <div className="absolute inset-0">
         <Image
-          src="/images/hero-poster.webp"
+          src="/images/hero-backup-bg.png"
           alt="Pelora Dashboard"
           fill
           priority
@@ -80,110 +80,131 @@ export default function Hero() {
         <source src="/videos/bg-video.mp4" type="video/mp4" />
       </video>
 
+      
       {/* OVERLAY */}
-      <div className="absolute inset-0 bg-black/50" />
+<div className="absolute inset-0 bg-black/50" />
 
-      {/* CONTENT */}
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl items-center px-6">
-        <div className="max-w-4xl">
-          {/* Badge */}
-          <div
-            className="
-              mb-6
-              inline-flex
-              items-center
-              rounded-full
-              border
-              border-white/10
-              bg-white/5
-              px-4
-              py-2
-              text-sm
-              text-white/80
-              backdrop-blur
-            "
-          >
-            Gmail + Calendar + AI Agents
-          </div>
+{/* HERO CONTENT */}
+<div className="relative z-10 flex min-h-screen items-center justify-center px-6">
+  <div className="mx-auto max-w-5xl text-center">
+    {/* Badge */}
+    <div
+      className="
+        mb-8
+        inline-flex
+        items-center
+        rounded-full
+        border
+        border-border
+        bg-surface/60
+        px-4
+        py-2
+        backdrop-blur-md
+      "
+    >
+      <span
+        className="
+          mr-2
+          h-2
+          w-2
+          rounded-full
+          bg-primary
+        "
+      />
+      <span className="text-sm text-text-secondary">
+        AI-powered workflow automation
+      </span>
+    </div>
 
-          {/* Heading */}
-          <h1
-            className="
-              max-w-5xl
-              text-5xl
-              font-bold
-              leading-tight
-              text-white
-              md:text-7xl
-            "
-          >
-            Your AI Work OS
-            <span className="block text-primary">
-              built for modern teams
-            </span>
-          </h1>
+    {/* Heading */}
+    <h1
+      className="
+        font-heading
+        text-2xl
+        font-extrabold
+        tracking-[-0.04em]
+        text-text
+        sm:text-3xl
+        md:text-4xl
+        lg:text-6xl
+      "
+    >
+      Turn complexity into  {" "}
+      <span className="text-primary">
+         flow.
+      </span>
+    </h1>
 
-          {/* Description */}
-          <p
-            className="
-              mt-8
-              max-w-2xl
-              text-lg
-              leading-relaxed
-              text-text-secondary
-              md:text-xl
-            "
-          >
-            Connect Gmail, Calendar and intelligent agents into one
-            workspace. Search faster, schedule meetings, draft replies
-            and automate repetitive work.
-          </p>
+    {/* Subtitle */}
+    <p
+      className="
+        mx-auto
+        mt-8
+        max-w-3xl
+        font-body
+        text
+        leading-relaxed
+        text-text-secondary
+        sm:text-xl
+      "
+    >
+    Less coordination. Less context switching. More time for the work that matters.
+    </p>
 
-          {/* CTA */}
-          <div className="mt-10 flex flex-wrap gap-4">
-            <button
-              className="
-                rounded-xl
-                bg-primary
-                px-6
-                py-4
-                font-medium
-                text-white
-                transition
-                hover:scale-[1.02]
-              "
-            >
-              Start Free
-            </button>
+    {/* CTA Buttons */}
+    <div
+      className="
+        mt-12
+        flex
+        flex-col
+        items-center
+        justify-center
+        gap-4
+        sm:flex-row
+      "
+    >
+      <button
+        className="
+          rounded-xl
+          bg-primary
+          px-8
+          py-4
+          font-medium
+          text-white
+          transition-all
+          duration-300
+          hover:scale-105
+          hover:shadow-[0_0_40px_rgba(240,28,112,0.45)]
+           border
+        "
+      >
+        Get Started
+      </button>
 
-            <button
-              className="
-                rounded-xl
-                border
-                border-white/10
-                bg-white/5
-                px-6
-                py-4
-                font-medium
-                text-white
-                backdrop-blur
-                transition
-                hover:bg-white/10
-              "
-            >
-              Watch Demo
-            </button>
-          </div>
+      <button
+        className="
+          rounded-xl
+          border
+          border-border
+          bg-surface/50
+          px-8
+          py-4
+          font-medium
+          text-text
+          backdrop-blur-md
+          transition-all
+          duration-300
+          hover:border-primary/50
+          hover:bg-surface
+        "
+      >
+        Watch Demo
+      </button>
+    </div>
+  </div>
+</div>
 
-          {/* Social Proof */}
-          <div className="mt-10 flex flex-wrap gap-6 text-sm text-white/60">
-            <span>✓ Gmail</span>
-            <span>✓ Google Calendar</span>
-            <span>✓ AI Automation</span>
-            <span>✓ Keyboard First</span>
-          </div>
-        </div>
-      </div>
+      
     </section>
   );
 }

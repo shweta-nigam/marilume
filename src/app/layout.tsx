@@ -15,7 +15,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Pelora",
+  title: "marilume",
   description: "AI Work OS",
    icons: {
     icon: "/favicon.png",

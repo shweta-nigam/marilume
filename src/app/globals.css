@@ -2,13 +2,13 @@
 
 
 :root {
-  --background: #08090d;
+  --background: #08090de3;
 
   --surface: #11131a;
   --surface-elevated: #161922;
 
-  --border: #232633;
-  --sub-border:#bd0633
+  --border: #232633c9;
+  --sub-border:#bd0633;
 
   --primary: #f01c70;
   --secondary: #bd0633;
