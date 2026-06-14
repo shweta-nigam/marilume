@@ -38,7 +38,7 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-background/40 py-40">
+    <section  id="how-it-works" className="relative overflow-hidden bg-background/40 py-40">
       {/* Background Glow */}
       <div className="absolute left-1/2 top-1/3 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-primary/10 blur-[180px]" />
 

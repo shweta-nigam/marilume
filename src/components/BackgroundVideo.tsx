@@ -56,7 +56,7 @@ export default function BackgroundVideo() {
           object-cover
           transition-opacity
           duration-1000
-          ${videoLoaded ? "opacity-0" : "opacity-25"}
+          ${videoLoaded ? "opacity-0" : "opacity-75"}
         `}
       />
 

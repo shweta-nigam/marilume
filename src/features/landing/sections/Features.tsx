@@ -29,7 +29,7 @@ export default function FeaturesSection() {
 //   add short compressed video on visulas sections
 
   return (
-    <section className="relative overflow-hidden bg-background/40 py-40">
+    <section  id="features" className="relative overflow-hidden bg-background/40 py-40">
       <div className="container mx-auto px-6">
         {/* Header */}
         <div className="mx-auto mb-28 max-w-3xl text-center">
