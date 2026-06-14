@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { JsonSchema } from "./json.schema.js";
+import { JsonSchema } from "./json.schema";
 
 export const CreateAiTaskSchema = z.object({
   type: z.string().min(1),
