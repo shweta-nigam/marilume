@@ -1,6 +1,3 @@
-import "dotenv/config"
-
-import { corsair } from "./corsair"
 
 // const main = async () =>  {
 //     // const res = await corsair.withTenant("dev").gmail.api.threads.list({})
@@ -17,18 +14,46 @@ import { corsair } from "./corsair"
 //     console.log(res)
 // }
 
-const main = async () =>  {
-    // const res = await corsair.withTenant("dev").googlecalendar.api.events.create({
-    //     event:{attendees :{
+// const main = async () =>  {
+//     // const res = await corsair.withTenant("dev").googlecalendar.api.events.create({
+//     //     event:{attendees :{
 
-    //     }}
-    // })
+//     //     }}
+//     // })
 
 
-    console.log(res)
-}
+//     console.log(res)
+// }
 
-main()
+// main()
 
 // so a lot of things you can do here --- make it worth
 // now you can easily wire up the api route to see the user's client and create events 
+
+// import { searchEmails } from "@/services/email.service";
+
+// async function main() {
+//   const results = await searchEmails(
+//     "dev",
+//     "Mobbin"
+//   );
+
+//   console.log(results);
+// }
+
+// main();
+
+import { runAssistant }
+from "@/services/assistant.service";
+
+async function main() {
+  const result =
+    await runAssistant(
+      "dev",
+      "Find emails about Mobbin"
+    );
+
+  console.log(result);
+}
+
+main();

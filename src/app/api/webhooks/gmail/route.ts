@@ -1,7 +1,14 @@
-export async function POST(req: Request) {
-  const body = await req.json();
+export async function POST(
+  req: Request
+) {
+  const payload =
+    await req.json();
 
-  console.log(body);
+  // save email
+
+  await prisma.email.upsert({
+    ...
+  });
 
   return Response.json({
     success: true,

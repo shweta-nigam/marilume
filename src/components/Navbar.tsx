@@ -14,7 +14,7 @@ const navLinks = [
   {
     label: "How It Works",
     href: "#how-it-works",
-  }, 
+  },
   {
     label: "Testimonials",
     href: "#testimonials",
@@ -95,26 +95,29 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            <button
+            <Link
+              href="/login"
               className="
-                hidden
-                rounded-xl
-                border
-                border-border
-                px-5
-                py-2.5
-                text-sm
-                text-text
-                transition-all
-                hover:border-primary/40
-                md:block
-              "
+    hidden
+    rounded-xl
+    border
+    border-border
+    px-5
+    py-2.5
+    text-sm
+    text-text
+    transition-all
+    hover:border-primary/40
+    md:block
+  "
             >
               Sign In
-            </button>
+            </Link>
 
-            <button
+            <Link
+              href="/signup"
               className="
+             
                 rounded-xl
                 bg-primary
                 px-5
@@ -129,7 +132,7 @@ export default function Navbar() {
               "
             >
               Get Started
-            </button>
+            </Link>
           </div>
         </nav>
       </div>

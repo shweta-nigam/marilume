@@ -7,7 +7,7 @@ import { googlecalendar } from '@corsair-dev/googlecalendar';
 const db = new Pool({ connectionString: process.env.DATABASE_URL });
 
 export const corsair = createCorsair({
-    plugins: [gmail(),googlecalendar()],
+    plugins: [gmail(), googlecalendar()],
     database: db,
     kek: process.env.CORSAIR_KEK!,
     multiTenancy: true,
