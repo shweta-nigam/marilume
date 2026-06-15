@@ -3,7 +3,7 @@
 export default function InboxPage() {
   async function connectGmail() {
     window.location.href =
-      "/api/integrations/gmail/connect";
+      "/api/gmail/connect";
   }
 
   return (

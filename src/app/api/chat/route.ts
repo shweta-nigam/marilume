@@ -1,19 +1,27 @@
-import { runAssistant }
-from "@/services/assistant.service";
+import { runAssistant } from "@/services/assistant.service";
+import { auth } from "@/lib/auth";
+import { ensureUserTenantProvisioned } from "@/services/tenant.service";
 
-export async function POST(
-  req: Request
-) {
-  const body =
-    await req.json();
+export async function POST(req: Request) {
+  const session = await auth.api.getSession({
+    headers: req.headers,
+  });
 
-  const result =
-    await runAssistant(
-      "dev",
-      body.message
-    );
+  if (!session || !session.user) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-    console.log("Message:", body.message);
-    console.log("Result:", result);
+  // Ensure tenant is provisioned (handles old/existing users dynamically)
+  await ensureUserTenantProvisioned(session.user.id);
+
+  const body = await req.json();
+
+  const result = await runAssistant(
+    session.user.id,
+    body.message
+  );
+
+  console.log("Message:", body.message);
+  console.log("Result:", result);
   return Response.json(result);
 }
