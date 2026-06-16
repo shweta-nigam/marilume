@@ -51,12 +51,16 @@ export default function LoginPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black py-4">
-      
+      {/* <div className="absolute left-1/2 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-cyan-500/20 blur-[180px]" /> */}
+
+         {/* Background */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#1e1b4b,transparent_40%),radial-gradient(circle_at_bottom,#0f766e,transparent_40%)]" />
+
+      {/* Glow */}
       <div className="absolute left-1/2 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-cyan-500/20 blur-[180px]" />
 
       {/* Login Card */}
       <div className="relative h-[650px] w-[420px] overflow-hidden rounded-[32px] border border-white/10 shadow-2xl">
-        
         {/* Background Image */}
         <Image
           src="/images/pink-card-bg-img-vh.png"
@@ -91,7 +95,8 @@ export default function LoginPage() {
             </h1>
 
             <p className="mt-2 text-xs leading-relaxed text-zinc-300">
-              The fastest way to manage your email, calendar, and workflows with AI.
+              The fastest way to manage your email, calendar, and workflows with
+              AI.
             </p>
 
             {/* Error Message */}
@@ -131,26 +136,65 @@ export default function LoginPage() {
                 />
               </div>
 
-              <button
+              <Link
+                href="/login"
                 type="submit"
-                disabled={loading}
-                className="w-full h-11 mt-2 flex items-center justify-center rounded-xl bg-cyan-500 text-black font-semibold text-sm hover:bg-cyan-400 transition-colors disabled:opacity-50"
+                className="
+  w-full
+  h-11
+  mt-2
+  flex
+  items-center
+  justify-center
+  rounded-xl
+  bg-primary
+  text-white
+  font-semibold
+  text-sm
+  border
+  border-primary
+  transition-all
+  duration-300
+  hover:scale-[1.02]
+  hover:shadow-[0_0_30px_rgba(240,28,112,0.15)]
+  disabled:opacity-50
+"
               >
                 {loading ? "Signing in..." : "Sign In"}
-              </button>
+              </Link>
             </form>
 
             {/* Divider */}
             <div className="mt-4 flex items-center justify-between gap-4">
               <span className="h-px flex-1 bg-white/10" />
-              <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">Or</span>
+              <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">
+                Or
+              </span>
               <span className="h-px flex-1 bg-white/10" />
             </div>
 
             {/* Google Login Button */}
             <button
               onClick={handleGoogleLogin}
-              className="w-full mt-4 flex h-11 items-center justify-center gap-3 rounded-xl border border-white/10 bg-black/20 font-medium text-white text-sm transition-all duration-300 hover:bg-white hover:text-black"
+              className="
+    w-full
+    mt-4
+    flex
+    h-11
+    items-center
+    justify-center
+    gap-3
+    rounded-xl
+    border
+    border-transparent
+    bg-white
+    font-medium
+    text-black
+    text-sm
+    transition-all
+    duration-300
+    hover:border-primary
+  "
             >
               <FcGoogle size={18} />
               <span>Continue with Google</span>
@@ -161,12 +205,16 @@ export default function LoginPage() {
           <div className="pb-6">
             <p className="text-center text-xs text-zinc-400">
               Don't have an account?{" "}
-              <Link href="/signup" className="font-semibold text-cyan-300 hover:text-cyan-200">
+              <Link
+                href="/signup"
+                className="font-semibold text-cyan-300 hover:text-cyan-200"
+              >
                 Sign up
               </Link>
             </p>
             <p className="mt-2 text-center text-[10px] text-zinc-500">
-              By continuing, you agree to our Terms of Service and Privacy Policy.
+              By continuing, you agree to our Terms of Service and Privacy
+              Policy.
             </p>
           </div>
         </div>

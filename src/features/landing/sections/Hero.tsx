@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Link } from "lucide-react";
+import Link from "next/link";
 
 export default function Hero() {
-
   return (
     <section className="relative min-h-screen overflow-hidden">
       {/* BACKGROUND */}
@@ -144,7 +142,8 @@ export default function Hero() {
               Get Started
             </Link>
 
-            <button
+            <Link
+              href="/"
               className="
           rounded-xl
           border
@@ -162,7 +161,7 @@ export default function Hero() {
         "
             >
               Watch Demo
-            </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -154,7 +154,24 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-11 mt-2 flex items-center justify-center rounded-xl bg-cyan-500 text-black font-semibold text-sm hover:bg-cyan-400 transition-colors disabled:opacity-50"
+                className=" w-full
+  h-11
+  mt-2
+  flex
+  items-center
+  justify-center
+  rounded-xl
+  bg-primary
+  text-white
+  font-semibold
+  text-sm
+  border
+  border-primary
+  transition-all
+  duration-300
+  hover:scale-[1.02]
+  hover:shadow-[0_0_30px_rgba(240,28,112,0.15)]
+  disabled:opacity-50"
               >
                 {loading ? "Creating account..." : "Sign Up"}
               </button>
@@ -170,7 +187,25 @@ export default function SignupPage() {
             {/* Google Signup */}
             <button
               onClick={handleGoogleSignup}
-              className="w-full mt-4 flex h-11 items-center justify-center gap-3 rounded-xl border border-white/10 bg-black/20 font-medium text-white text-sm transition-all duration-300 hover:bg-white hover:text-black"
+              className="
+    w-full
+    mt-4
+    flex
+    h-11
+    items-center
+    justify-center
+    gap-3
+    rounded-xl
+    border
+    border-transparent
+    bg-white
+    font-medium
+    text-black
+    text-sm
+    transition-all
+    duration-300
+    hover:border-primary
+  "
             >
               <FcGoogle size={18} />
               <span>Continue with Google</span>
