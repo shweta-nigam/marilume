@@ -47,9 +47,12 @@ import { runAssistant }
 from "@/services/assistant.service";
 
 async function main() {
+  // TODO: Replace with a valid tenantId from your database
+  const tenantId = process.env.TEST_TENANT_ID || "YOUR_TENANT_ID_HERE";
+
   const result =
     await runAssistant(
-      "dev",
+      tenantId,
       "Find emails about Mobbin"
     );
 

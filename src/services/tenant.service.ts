@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { setupCorsair } from "corsair";
+import { setupCorsair } from "corsair/setup";
 import { corsair } from "@/server/corsair";
 
 export async function getTenantId(userId: string) {
@@ -19,77 +19,69 @@ export async function getTenantId(userId: string) {
   return user.tenantId;
 }
 
-export async function ensureUserTenantProvisioned(userId: string) {
+export async function ensureUserTenantProvisioned(userId: string): Promise<string> {
   // 1. Get user details
   const user = await prisma.user.findUnique({
     where: { id: userId },
+    select: { id: true, name: true, email: true, tenantId: true },
   });
 
   if (!user) {
-    console.error(`ensureUserTenantProvisioned: User not found: ${userId}`);
-    return;
+    throw new Error(`ensureUserTenantProvisioned: User not found: ${userId}`);
   }
 
-  // 2. Create Tenant if not exists
-  await prisma.tenant.upsert({
-    where: { id: userId },
-    update: {},
-    create: {
-      id: userId,
-      name: `${user.name || user.email || userId}'s Tenant`,
-    },
-  });
+  let tenantId = user.tenantId;
 
-  // 3. Link user.tenantId to userId if not set
-  if (user.tenantId !== userId) {
+  if (!tenantId) {
+    // 2. Create Tenant record with its own distinct cuid
+    const tenant = await prisma.tenant.create({
+      data: {
+        name: `${user.name || user.email || userId}'s Tenant`,
+      },
+    });
+
+    tenantId = tenant.id;
+
+    // 3. Link user.tenantId to the new tenant.id
     await prisma.user.update({
       where: { id: userId },
       data: {
-        tenantId: userId,
+        tenantId: tenantId,
       },
     });
+
+    console.log(`[Provisioning] Created new Tenant ${tenantId} for user ${userId}`);
+  } else {
+    // Integrity check: make sure the tenant record actually exists in the database
+    const tenantExists = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+    });
+
+    if (!tenantExists) {
+      await prisma.tenant.create({
+        data: {
+          id: tenantId,
+          name: `${user.name || user.email || userId}'s Tenant`,
+        },
+      });
+    }
   }
 
-  // 4. Retrieve Google OAuth account credentials if they exist
-  const googleAccount = await prisma.account.findFirst({
-    where: {
-      userId: userId,
-      providerId: "google",
+  // 4. Provision tenant in Corsair and set global client credentials (Single Source of Truth)
+  console.log(`[Corsair Setup] Provisioning tenant: ${tenantId} in Corsair`);
+  await setupCorsair(corsair, {
+    tenantId: tenantId,
+    credentials: {
+      gmail: {
+        client_id: process.env.GOOGLE_CLIENT_ID!,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+      },
+      googlecalendar: {
+        client_id: process.env.GOOGLE_CLIENT_ID!,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+      },
     },
   });
 
-  const credentials: Record<string, Record<string, string>> = {};
-
-  if (googleAccount) {
-    const gmailCreds: Record<string, string> = {};
-    const calCreds: Record<string, string> = {};
-
-    if (googleAccount.accessToken) {
-      gmailCreds.access_token = googleAccount.accessToken;
-      calCreds.access_token = googleAccount.accessToken;
-    }
-    if (googleAccount.refreshToken) {
-      gmailCreds.refresh_token = googleAccount.refreshToken;
-      calCreds.refresh_token = googleAccount.refreshToken;
-    }
-    if (googleAccount.accessTokenExpiresAt) {
-      const expiresSec = String(Math.floor(googleAccount.accessTokenExpiresAt.getTime() / 1000));
-      gmailCreds.expires_at = expiresSec;
-      calCreds.expires_at = expiresSec;
-    }
-
-    if (Object.keys(gmailCreds).length > 0) {
-      credentials.gmail = gmailCreds;
-    }
-    if (Object.keys(calCreds).length > 0) {
-      credentials.googlecalendar = calCreds;
-    }
-  }
-
-  // 5. Setup Corsair tenant (idempotent setup)
-  console.log(`Setting up Corsair for tenant: ${userId} with credentials:`, Object.keys(credentials));
-  await setupCorsair(corsair, {
-    tenantId: userId,
-    credentials: Object.keys(credentials).length > 0 ? credentials : undefined,
-  });
-}
+  return tenantId;
+}

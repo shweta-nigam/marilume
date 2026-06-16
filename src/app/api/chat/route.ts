@@ -11,13 +11,15 @@ export async function POST(req: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Ensure tenant is provisioned (handles old/existing users dynamically)
-  await ensureUserTenantProvisioned(session.user.id);
+  // Ensure tenant is provisioned and resolve the actual tenantId
+  const tenantId = await ensureUserTenantProvisioned(session.user.id);
 
   const body = await req.json();
 
+  console.log(`[Chat Route] Resolving chat for tenantId: ${tenantId}`);
+
   const result = await runAssistant(
-    session.user.id,
+    tenantId,
     body.message
   );
 

@@ -10,5 +10,6 @@ export const corsair = createCorsair({
     plugins: [gmail(), googlecalendar()],
     database: db,
     kek: process.env.CORSAIR_KEK!,
-    multiTenancy: true,
+    multiTenancy: true,  // //every user/workspace needs its own tenantId, and Gmail/Calendar accounts are stored separately per tenant.
 });
+
