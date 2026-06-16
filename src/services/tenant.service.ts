@@ -67,7 +67,21 @@ export async function ensureUserTenantProvisioned(userId: string): Promise<strin
     }
   }
 
-  // 4. Provision tenant in Corsair (account-level setup)
+  // 4. Set global (integration-level) client credentials (shared across all tenants)
+  await setupCorsair(corsair, {
+    credentials: {
+      gmail: {
+        client_id: process.env.GOOGLE_CLIENT_ID!,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+      },
+      googlecalendar: {
+        client_id: process.env.GOOGLE_CLIENT_ID!,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+      },
+    },
+  });
+
+  // 5. Provision tenant in Corsair (account-level setup)
   console.log(`[Corsair Setup] Provisioning tenant: ${tenantId} in Corsair`);
   await setupCorsair(corsair, {
     tenantId: tenantId,
