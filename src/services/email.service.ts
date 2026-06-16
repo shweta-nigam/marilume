@@ -1,67 +1,126 @@
-// export async function getUnreadEmails(
-//   tenantId: string
-// ) {}
-
-
-// export async function getEmail(
-//   tenantId: string,
-//   messageId: string
-// ) {}
-
-// export async function sendEmail(
-//   tenantId: string,
-//   to: string,
-//   subject: string,
-//   body: string
-// ) {}
-
-// export async function draftEmail(
-//   tenantId: string,
-//   to: string,
-//   subject: string,
-//   body: string
-// ) {}
-
 import { corsair } from "@/server/corsair";
+
+export type EmailSearchResult = {
+  id: string;
+  snippet: string;
+  historyId?: string;
+  createdAt?: Date | null;
+};
 
 export async function searchEmails(
   tenantId: string,
-  query: string
-) {
-  console.log("=================================");
-  console.log("EMAIL SERVICE CALLED");
-  console.log("Tenant:", tenantId);
-  console.log("Query:", query);
+  query: string,
+  limit = 10
+): Promise<EmailSearchResult[]> {
+  if (!tenantId) {
+    throw new Error("Tenant ID is required");
+  }
 
+  if (!query.trim()) {
+    return [];
+  }
+
+  const threads = await corsair
+    .withTenant(tenantId)
+    .gmail
+    .db
+    .threads
+    .search({
+      data: {
+        snippet: {
+          contains: query.trim(),
+        },
+      },
+    });
+
+  return threads
+    .slice(0, limit)
+    .map((thread) => ({
+      id: thread.entity_id,
+      snippet: thread.data?.snippet ?? "",
+      historyId: thread.data?.historyId,
+      createdAt: thread.data?.createdAt ?? null,
+    }));
+}
+
+
+
+function mapThread(thread: any): EmailSearchResult {
+  return {
+    id: thread.entity_id,
+    snippet: thread.data?.snippet ?? "",
+    historyId: thread.data?.historyId,
+    createdAt: thread.data?.createdAt ?? null,
+  };
+}
+
+export async function getEmailById(
+  tenantId: string,
+  emailId: string
+): Promise<EmailSearchResult | null> {
   const results = await corsair
     .withTenant(tenantId)
     .gmail
     .db
     .threads
     .search({
-      data: {},
+      data: {
+        id: emailId,
+      },
     });
 
-  console.log(
-    "TOTAL EMAILS:",
-    results.length
+  if (results.length === 0) {
+    return null;
+  }
+
+  return mapThread(results[0]);
+}
+
+export async function getRecentEmails(
+  tenantId: string,
+  limit = 20
+): Promise<EmailSearchResult[]> {
+  const threads = await corsair
+    .withTenant(tenantId)
+    .gmail
+    .db
+    .threads
+    .list();
+
+  return threads
+    .sort(
+      (a, b) =>
+        new Date(
+          b.data?.createdAt ?? 0
+        ).getTime() -
+        new Date(
+          a.data?.createdAt ?? 0
+        ).getTime()
+    )
+    .slice(0, limit)
+    .map(mapThread);
+}
+
+export async function getLatestEmail(
+  tenantId: string
+): Promise<EmailSearchResult | null> {
+  const emails = await getRecentEmails(
+    tenantId,
+    1
   );
 
-  const filtered = results.filter(
-    (thread) =>
-      thread.data?.snippet
-        ?.toLowerCase()
-        .includes(query.toLowerCase())
-  );
+  return emails[0] ?? null;
+}
 
-  console.log(
-    "FILTERED EMAILS:",
-    filtered.length
-  );
+export async function getEmailCount(
+  tenantId: string
+): Promise<number> {
+  const threads = await corsair
+    .withTenant(tenantId)
+    .gmail
+    .db
+    .threads
+    .list();
 
-  console.log(
-    filtered.slice(0, 3)
-  );
-
-  return filtered;
+  return threads.length;
 }

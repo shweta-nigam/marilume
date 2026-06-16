@@ -1,153 +1,81 @@
+export async function runAgent({
+  tenantId,
+  message,
+}: {
+  tenantId: string;
+  message: string;
+}) {
+  const response =
+    await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 2000,
 
-import { claude } from "@/lib/claude";
-import { searchEmails } from "./email.service";
-import { MODEL } from "@/server/agent";
-
-export async function runAssistant(
-  tenantId: string,
-  prompt: string
-) {
-  const response = await claude.messages.create({
-    model: MODEL,
-    max_tokens: 200,
-
-    system: `
+      system: `
 You are Marilume.
 
-Your job is to determine which tool should be called.
+You help users manage email and calendar.
 
-Available tools:
-
-- search_emails
-
-Return ONLY valid JSON.
-
-Examples:
-
-{
-  "tool": "search_emails",
-  "query": "amazon"
-}
-
-{
-  "tool": "search_emails",
-  "query": "mobbin"
-}
-
-Rules:
-- Return only JSON
-- Do not explain your reasoning
-- Do not use markdown
-- Do not wrap JSON in code blocks
-- Always include a "tool" field
+Use tools whenever information is required.
 `,
 
-    messages: [
-      {
-        role: "user",
-        content: prompt,
-      },
-    ],
-  });
+      messages: [
+        {
+          role: "user",
+          content: message,
+        },
+      ],
 
-  const text =
-    response.content[0]?.type === "text"
-      ? response.content[0].text.trim()
-      : "{}";
+      tools,
+    });
 
-  let action: {
-    tool?: string;
-    query?: string;
-  };
-
-  try {
-    const cleaned = text
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    action = JSON.parse(cleaned);
-
-    console.log("Claude Output:");
-    console.log(action);
-  } catch (error) {
-    console.error(
-      "Claude returned invalid JSON:",
-      text
+  const toolUse =
+    response.content.find(
+      (block) =>
+        block.type === "tool_use"
     );
 
-    return {
-      error: "Invalid JSON returned by Claude",
-      raw: text,
-    };
+  if (!toolUse) {
+    return response.content;
   }
 
-  switch (action.tool) {
-    case "search_emails": {
-      const emails = await searchEmails(
-        tenantId,
-        action.query ?? ""
-      );
+  const result =
+    await executeTool(
+      tenantId,
+      toolUse.name,
+      toolUse.input
+    );
 
-      console.log(
-        `Found ${emails.length} emails`
-      );
+  const finalResponse =
+    await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 2000,
 
-      const summaryResponse =
-        await claude.messages.create({
-          model: MODEL,
-          max_tokens: 500,
+      messages: [
+        {
+          role: "user",
+          content: message,
+        },
 
-          system: `
-You are an email assistant.
+        {
+          role: "assistant",
+          content: response.content,
+        },
 
-Summarize the email results clearly.
-
-Include:
-- Number of emails found
-- Main topics
-- Key highlights
-
-Keep the response concise.
-`,
-
-          messages: [
+        {
+          role: "user",
+          content: [
             {
-              role: "user",
-              content: `
-Search Query:
-${action.query}
-
-Emails:
-${JSON.stringify(
-  emails.slice(0, 10),
-  null,
-  2
-)}
-`,
+              type: "tool_result",
+              tool_use_id:
+                toolUse.id,
+              content: JSON.stringify(
+                result
+              ),
             },
           ],
-        });
+        },
+      ],
+    });
 
-      const summary =
-        summaryResponse.content[0]?.type ===
-        "text"
-          ? summaryResponse.content[0].text
-          : "No summary generated.";
-
-      return {
-        tool: "search_emails",
-        query: action.query,
-        count: emails.length,
-        summary,
-        emails,
-      };
-    }
-
-    default:
-      return {
-        error: "Unknown tool",
-        tool: action.tool,
-      };
-  }
+  return finalResponse.content;
 }
