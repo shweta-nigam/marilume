@@ -1,0 +1,76 @@
+import { NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
+
+import { auth } from "@/lib/auth";
+import { runAssistant } from "@/services/agent.service";
+import { ensureUserTenantProvisioned } from "@/services/tenant.service";
+
+export async function POST(req: NextRequest) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    const body = await req.json();
+
+    if (!body?.message?.trim()) {
+      return NextResponse.json(
+        {
+          error: "Message is required",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    // Resolve tenant
+    const tenantId =
+      await ensureUserTenantProvisioned(
+        session.user.id
+      );
+
+    console.log(
+      `[Agent Route] Running assistant for tenant: ${tenantId}`
+    );
+
+    const response = await runAssistant(
+      tenantId,
+      body.message
+    );
+
+    return NextResponse.json({
+      success: true,
+      response,
+    });
+  } catch (error) {
+    console.error(
+      "[AGENT_ROUTE_ERROR]",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Internal Server Error",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}

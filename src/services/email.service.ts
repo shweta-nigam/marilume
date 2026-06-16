@@ -5,6 +5,11 @@ export type EmailSearchResult = {
   snippet: string;
   historyId?: string;
   createdAt?: Date | null;
+
+  subject?: string;
+  sender?: string;
+  unread?: boolean;
+
 };
 
 export async function searchEmails(
@@ -123,4 +128,36 @@ export async function getEmailCount(
     .list();
 
   return threads.length;
+}
+
+export async function getMessages(
+  tenantId: string,
+  limit = 50
+) {
+  const threads = await corsair
+    .withTenant(tenantId)
+    .gmail
+    .db
+    .threads
+    .list();
+
+  return threads.slice(0, limit);
+}
+
+export async function getThread(
+  tenantId: string,
+  threadId: string
+) {
+  const threads = await corsair
+    .withTenant(tenantId)
+    .gmail
+    .db
+    .threads
+    .search({
+      data: {
+        id: threadId,
+      },
+    });
+
+  return threads[0] ?? null;
 }

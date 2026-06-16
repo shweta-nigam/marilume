@@ -17,7 +17,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/product",
+      callbackURL: "/dashboard",
     });
   };
 
@@ -34,7 +34,7 @@ export default function LoginPage() {
       const { data, error } = await authClient.signIn.email({
         email,
         password,
-        callbackURL: "/product",
+        callbackURL: "/dashboard",
       });
 
       if (error) {

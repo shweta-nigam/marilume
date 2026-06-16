@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { runAssistant } from "../services/assistant.service";
+import { runAssistant } from "../services/agent.service";
 
 async function main() {
   const tenantId = process.env.TEST_TENANT_ID || "cmqgowq0b0000uu643l0hnkf2";
