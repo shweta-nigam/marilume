@@ -27,7 +27,11 @@ export async function GET(request: Request) {
 
     console.log(`[Gmail Callback] Connected successfully for plugin: ${result.plugin}, tenant: ${result.tenantId}`);
 
-    return Response.redirect(new URL("/dashboard", request.url));
+    if (result.plugin === "googlecalendar") {
+      return Response.redirect(new URL("/dashboard/calendar", request.url));
+    } else {
+      return Response.redirect(new URL("/dashboard/gmail", request.url));
+    }
   } catch (error: any) {
     console.error("[Gmail Callback] OAuth callback exchange failed:", error);
     return Response.json(

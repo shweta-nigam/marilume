@@ -2,7 +2,7 @@
 
 
 :root {
-  --background: #08090d;
+  --background: #08090dd8;
 
   --surface: #11131a;
   --surface-elevated: #161922;
@@ -53,3 +53,16 @@ features/inbox/components
 
 
 */
+
+@keyframes shine {
+  from {
+    background-position: 200% center;
+  }
+  to {
+    background-position: -200% center;
+  }
+}
+
+.animate-shine {
+  animation: shine 8s linear infinite;
+}

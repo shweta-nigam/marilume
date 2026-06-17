@@ -54,7 +54,7 @@ export default function PricingSection() {
   return (
     <section
       id="pricing"
-      className="relative overflow-hidden py-40"
+      className="relative overflow-hidden py-40 bg-background/40"
     >
       {/* Background Glow */}
       <div
