@@ -1,10 +1,21 @@
 import Sidebar from "@/components/dashboard/Sidebar";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || !session.user) {
+    redirect("/login");
+  }
+
   return (
     <div className="h-screen flex bg-background overflow-hidden py-4">
       <Sidebar />

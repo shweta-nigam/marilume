@@ -70,7 +70,7 @@ export default function DashboardPage() {
       <div
         className="absolute inset-0 opacity-[0.05] bg-cover bg-center"
         style={{
-          backgroundImage: "url('/images/dashboard-bg.jpg')",
+          backgroundImage: "url('/images/bg-img-2.png')",
         }}
       />
 

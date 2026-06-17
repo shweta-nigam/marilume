@@ -136,9 +136,9 @@ export default function LoginPage() {
                 />
               </div>
 
-              <Link
-                href="/login"
+              <button
                 type="submit"
+                disabled={loading}
                 className="
   w-full
   h-11
@@ -161,7 +161,7 @@ export default function LoginPage() {
 "
               >
                 {loading ? "Signing in..." : "Sign In"}
-              </Link>
+              </button>
             </form>
 
             {/* Divider */}
