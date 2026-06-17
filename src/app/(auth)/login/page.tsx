@@ -40,7 +40,7 @@ export default function LoginPage() {
       if (error) {
         setError(error.message || "Failed to log in.");
       } else {
-        router.push("/product");
+        router.push("/dashboard");
       }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");

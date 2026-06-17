@@ -8,9 +8,12 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const h = await headers();
+  console.log("[Layout Cookie Header]:", h.get("cookie"));
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: h,
   });
+  console.log("[Layout Session]:", session);
 
   if (!session || !session.user) {
     redirect("/login");
