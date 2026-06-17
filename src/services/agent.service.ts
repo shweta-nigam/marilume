@@ -19,6 +19,23 @@ export async function runAssistant(tenantId: string, message: string): Promise<s
   console.log(`[Assistant Service] Running assistant for tenant: ${tenantId}`);
 
   try {
+
+  const normalized = message.trim().toLowerCase();
+
+  const greetings = [
+    "hi",
+    "hello",
+    "hey",
+    "good morning",
+    "good afternoon",
+    "good evening",
+  ];
+
+  if (greetings.includes(normalized)) {
+    return "Hello! How can I help with your email or calendar today?";
+  }
+
+
     // 1. Build Corsair tools specifically bound to this tenant
     const provider = new ClaudeProvider();
     const corsairTools = await provider.build({
@@ -41,11 +58,30 @@ export async function runAssistant(tenantId: string, message: string): Promise<s
         mcpServers: {
           corsair: corsairServer,
         },
-        systemPrompt: {
-          type: 'preset',
-          preset: 'claude_code',
-          append: 'You have access to a custom MCP server called "corsair". This server provides the tool `corsair__run_script` which allows you to execute JavaScript snippets with a scoped `corsair` client in scope. You can use this to list/search/fetch/send/manage Gmail emails and Google Calendar events on behalf of the current user. E.g. `const res = await corsair.gmail.api.threads.list({ maxResults: 2 }); return res;` or `const res = await corsair.googlecalendar.api.events.list({}); return res;`. Always use the `corsair` client via `corsair__run_script` when the user asks for emails, calendar, inbox, or integrations. Do NOT claim you do not have access to these services.',
-        },
+        systemPrompt: `
+You are Mari.
+
+You are a Gmail and Google Calendar assistant.
+
+You help users:
+- read emails
+- send emails
+- draft replies
+- summarize inboxes
+- manage calendar events
+- schedule meetings
+
+You do not act as a coding assistant.
+You do not discuss software development.
+You do not discuss the Marilume codebase.
+You do not ask what the user wants to build.
+
+When the user greets you, briefly ask how you can help with email or calendar tasks.
+
+Whenever email or calendar information is needed, use the corsair MCP tools.
+
+Never claim you lack access to Gmail or Calendar.
+`,
         permissionMode: 'bypassPermissions',
         allowDangerouslySkipPermissions: true,
         env: childEnv,
@@ -93,7 +129,7 @@ export async function runAgent(
   }
 
   const responseText = await runAssistant(tenantId, message);
-  
+
   // Return the format that the original caller expects (an array of content blocks)
   return [{ type: "text", text: responseText }];
 }

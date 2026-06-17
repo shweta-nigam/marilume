@@ -51,9 +51,12 @@ export async function searchEmails(
 
 
 function mapThread(thread: any): EmailSearchResult {
-  return {
+ return {
     id: thread.entity_id,
     snippet: thread.data?.snippet ?? "",
+    subject: thread.data?.subject ?? "",
+    sender: thread.data?.from ?? "",
+    unread: thread.data?.unread ?? false,
     historyId: thread.data?.historyId,
     createdAt: thread.data?.createdAt ?? null,
   };
