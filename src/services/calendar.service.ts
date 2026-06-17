@@ -91,6 +91,33 @@ export async function getUpcomingEvents(
     .map(mapEvent);
 }
 
+export async function getAllEvents(
+  tenantId: string,
+  limit = 100
+): Promise<CalendarEvent[]> {
+  const events = await corsair
+    .withTenant(tenantId)
+    .googlecalendar
+    .db
+    .events
+    .list();
+
+  return events
+    .sort(
+      (a: any, b: any) =>
+        new Date(
+          a.data?.start?.dateTime ??
+            a.data?.start?.date ?? 0
+        ).getTime() -
+        new Date(
+          b.data?.start?.dateTime ??
+            b.data?.start?.date ?? 0
+        ).getTime()
+    )
+    .slice(0, limit)
+    .map(mapEvent);
+}
+
 export async function getTodaysEvents(
   tenantId: string
 ): Promise<CalendarEvent[]> {
