@@ -8,6 +8,7 @@ import HowItWorksSection from "./landing/sections/HowItWorks";
 import CTASection from "./landing/sections/CTA";
 import TestimonialsSection from "./landing/sections/Testimonials";
 import FAQSection from "./landing/sections/FAQ";
+import PricingSection from "./landing/sections/PricingSection";
 
 // import Features from "./sections/Features";
 // import Footer from "../components/Footer";
@@ -22,6 +23,7 @@ export default function LandingPage() {
       <FeaturesSection />
       <HowItWorksSection />
       <TestimonialsSection />
+      <PricingSection />
       <FAQSection />
       <CTASection />
     </>
