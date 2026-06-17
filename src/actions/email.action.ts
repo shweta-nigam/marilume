@@ -104,3 +104,33 @@ export async function sendReply(threadId: string, replyText: string) {
     return { success: false, error: error.message || "Failed to send email" };
   }
 }
+
+export async function markThreadAsRead(threadId: string) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const tenantId = await ensureUserTenantProvisioned(session.user.id);
+
+    await corsair
+      .withTenant(tenantId)
+      .gmail
+      .api
+      .threads
+      .modify({
+        id: threadId,
+        removeLabelIds: ["UNREAD"],
+      });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("[markThreadAsRead action error]", error);
+    return { success: false, error: error.message || "Failed to mark as read" };
+  }
+}
+

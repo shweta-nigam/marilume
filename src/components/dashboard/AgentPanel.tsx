@@ -48,7 +48,17 @@ export default function AgentPanel({
       const res = await fetch("/api/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: textToSend }),
+        body: JSON.stringify({
+          message: textToSend,
+          selectedEmail: selectedEmail
+            ? {
+                id: selectedEmail.id,
+                sender: selectedEmail.sender,
+                subject: selectedEmail.subject,
+                snippet: selectedEmail.snippet,
+              }
+            : null,
+        }),
       });
 
       const data = await res.json();

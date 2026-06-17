@@ -24,7 +24,7 @@ export default async function CalendarPage() {
   }
 
   return (
-    <div className="p-8 h-screen">
+    <div className="p-8 h-full">
       <div className="grid grid-cols-5 gap-6 h-full text-white">
         <div className="col-span-3 h-full">
           <CalendarPreview events={events} />

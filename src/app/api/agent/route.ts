@@ -45,9 +45,20 @@ export async function POST(req: NextRequest) {
       `[Agent Route] Running assistant for tenant: ${tenantId}`
     );
 
+    let prompt = body.message;
+    if (body.selectedEmail) {
+      prompt = `[Context - Selected Email:
+Sender: ${body.selectedEmail.sender}
+Subject: ${body.selectedEmail.subject}
+Snippet: ${body.selectedEmail.snippet}
+ID: ${body.selectedEmail.id}]
+
+User Message: ${body.message}`;
+    }
+
     const response = await runAssistant(
       tenantId,
-      body.message
+      prompt
     );
 
     return NextResponse.json({

@@ -23,7 +23,7 @@ export default async function GmailPage() {
   }
 
   return (
-    <div className="p-8 h-screen">
+    <div className="p-8 h-full">
       <GmailDashboard initialEmails={emails} />
     </div>
   );
