@@ -46,7 +46,7 @@ export default function NotFound() {
         <div className="mt-12 rounded-2xl border border-border bg-surface/80 p-6 backdrop-blur">
           <p className="text-sm text-text-secondary">
             If you expected something here, the AI assistant
-            may still be setting it up.
+            may still be setting it up. So hurry up!
           </p>
         </div>
       </div>
