@@ -27,7 +27,7 @@ const navLinks = [
   },
   {
     label: "Product",
-    href: "/product",
+    href: "/tools",
   },
 ];
 
