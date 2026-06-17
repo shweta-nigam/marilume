@@ -25,6 +25,10 @@ const navLinks = [
     label: "FAQ",
     href: "#faq",
   },
+  {
+    label: "Product",
+    href: "/product",
+  },
 ];
 
 export default function Navbar() {
