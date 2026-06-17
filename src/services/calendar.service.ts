@@ -36,7 +36,7 @@ export async function searchEvents(
 
   const events = await corsair
     .withTenant(tenantId)
-    .calendar
+    .googlecalendar
     .db
     .events
     .search({
@@ -58,7 +58,7 @@ export async function getUpcomingEvents(
 ): Promise<CalendarEvent[]> {
   const events = await corsair
     .withTenant(tenantId)
-    .calendar
+    .googlecalendar
     .db
     .events
     .list();
@@ -66,7 +66,7 @@ export async function getUpcomingEvents(
   const now = Date.now();
 
   return events
-    .filter((event) => {
+    .filter((event: any) => {
       const start =
         event.data?.start?.dateTime ??
         event.data?.start?.date;
@@ -77,7 +77,7 @@ export async function getUpcomingEvents(
       );
     })
     .sort(
-      (a, b) =>
+      (a: any, b: any) =>
         new Date(
           a.data?.start?.dateTime ??
             a.data?.start?.date
@@ -123,7 +123,7 @@ export async function getEventById(
 ): Promise<CalendarEvent | null> {
   const events = await corsair
     .withTenant(tenantId)
-    .calendar
+    .googlecalendar
     .db
     .events
     .search({
@@ -151,10 +151,22 @@ export async function createEvent(
 ) {
   return corsair
     .withTenant(tenantId)
-    .calendar
+    .googlecalendar
     .api
     .events
-    .create(payload);
+    .create({
+      event: {
+        summary: payload.summary,
+        description: payload.description,
+        location: payload.location,
+        start: {
+          dateTime: payload.start,
+        },
+        end: {
+          dateTime: payload.end,
+        },
+      },
+    });
 }
 
 export async function updateEvent(
@@ -164,10 +176,13 @@ export async function updateEvent(
 ) {
   return corsair
     .withTenant(tenantId)
-    .calendar
+    .googlecalendar
     .api
     .events
-    .update(eventId, updates);
+    .update({
+      id: eventId,
+      event: updates,
+    });
 }
 
 export async function deleteEvent(
@@ -176,8 +191,10 @@ export async function deleteEvent(
 ) {
   return corsair
     .withTenant(tenantId)
-    .calendar
+    .googlecalendar
     .api
     .events
-    .delete(eventId);
+    .delete({
+      id: eventId,
+    });
 }

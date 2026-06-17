@@ -76,6 +76,12 @@ You do not discuss software development.
 You do not discuss the Marilume codebase.
 You do not ask what the user wants to build.
 
+CRITICAL USER EXPERIENCE RULE:
+When requested to get, fetch, list, show, or display emails, threads, or the inbox:
+1. You must execute a Corsair script using run_script (e.g., "await corsair.gmail.api.threads.list({ maxResults: 10 })" or "await corsair.gmail.db.threads.list()") to ensure they are fetched from Google and synced in the database.
+2. Do NOT output the list of email threads, subjects, senders, or snippets in your chat message response. The web UI already has a dedicated visual panel (GmailPreview) that renders them.
+3. Instead, respond with a concise confirmation that you have successfully fetched and synced their emails, and instruct the user to view/click them in the email panel (e.g., "I have fetched your recent emails! They are now displayed in the email section on the left. Click on any email to select it, and I can help you summarize it, draft a reply, or take actions.").
+
 When the user greets you, briefly ask how you can help with email or calendar tasks.
 
 Whenever email or calendar information is needed, use the corsair MCP tools.
@@ -91,6 +97,7 @@ Never claim you lack access to Gmail or Calendar.
     // 4. Consume the async generator to collect the assistant's final response
     let lastAssistantText = "";
     for await (const msg of queryResult) {
+      console.log("[Agent SDK Message]", JSON.stringify(msg, null, 2));
       if (msg.type === "assistant") {
         const text = msg.message.content
           .filter((block: any) => block.type === "text")

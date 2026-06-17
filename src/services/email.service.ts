@@ -38,25 +38,53 @@ export async function searchEmails(
       },
     });
 
+  const messages = await corsair
+    .withTenant(tenantId)
+    .gmail
+    .db
+    .messages
+    .list();
+
   return threads
     .slice(0, limit)
-    .map((thread) => ({
-      id: thread.entity_id,
-      snippet: thread.data?.snippet ?? "",
-      historyId: thread.data?.historyId,
-      createdAt: thread.data?.createdAt ?? null,
-    }));
+    .map((thread) => mapThread(thread, messages));
 }
 
+function mapThread(thread: any, messages: any[] = []): EmailSearchResult {
+  const messagesInThread = messages.filter(
+    (m: any) => m.data?.threadId === thread.entity_id || m.data?.threadId === thread.data?.id
+  );
 
+  const sortedMessages = [...messagesInThread].sort(
+    (a: any, b: any) =>
+      new Date(a.data?.createdAt ?? 0).getTime() -
+      new Date(b.data?.createdAt ?? 0).getTime()
+  );
 
-function mapThread(thread: any): EmailSearchResult {
- return {
+  const firstMessage = sortedMessages[0];
+  const latestMessage = sortedMessages[sortedMessages.length - 1] || firstMessage;
+
+  const getHeader = (msg: any, name: string) => {
+    return msg?.data?.payload?.headers?.find(
+      (h: any) => h.name.toLowerCase() === name.toLowerCase()
+    )?.value;
+  };
+
+  const fromVal = getHeader(latestMessage, 'from') || getHeader(firstMessage, 'from') || '';
+  const sender = fromVal.replace(/<.*>/, '').trim() || fromVal || 'Unknown';
+
+  const subject = getHeader(firstMessage, 'subject') || getHeader(latestMessage, 'subject') || thread.data?.subject || '(No Subject)';
+
+  const unread = messagesInThread.length > 0 
+    ? messagesInThread.some((m: any) => m.data?.labelIds?.includes('UNREAD'))
+    : (thread.data?.unread ?? false);
+
+  return {
     id: thread.entity_id,
     snippet: thread.data?.snippet ?? "",
-    subject: thread.data?.subject ?? "",
-    sender: thread.data?.from ?? "",
-    unread: thread.data?.unread ?? false,
+    subject,
+    sender,
+    unread,
     historyId: thread.data?.historyId,
     createdAt: thread.data?.createdAt ?? null,
   };
@@ -81,7 +109,18 @@ export async function getEmailById(
     return null;
   }
 
-  return mapThread(results[0]);
+  const messages = await corsair
+    .withTenant(tenantId)
+    .gmail
+    .db
+    .messages
+    .search({
+      data: {
+        threadId: emailId,
+      },
+    });
+
+  return mapThread(results[0], messages);
 }
 
 export async function getRecentEmails(
@@ -95,6 +134,13 @@ export async function getRecentEmails(
     .threads
     .list();
 
+  const messages = await corsair
+    .withTenant(tenantId)
+    .gmail
+    .db
+    .messages
+    .list();
+
   return threads
     .sort(
       (a, b) =>
@@ -106,7 +152,7 @@ export async function getRecentEmails(
         ).getTime()
     )
     .slice(0, limit)
-    .map(mapThread);
+    .map((thread) => mapThread(thread, messages));
 }
 
 export async function getLatestEmail(

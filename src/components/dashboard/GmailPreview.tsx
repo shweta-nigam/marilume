@@ -3,6 +3,7 @@
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { EmailSearchResult } from "@/services/email.service";
+import { format, isToday } from "date-fns";
 
 interface GmailPreviewProps {
   emails: EmailSearchResult[];
@@ -82,15 +83,24 @@ const filteredEmails = useMemo(() => {
         ) : (
           <div className="p-3">
             {filteredEmails.map((email) => {
-              const active =
-                selectedEmailId === email.id;
+              const active = selectedEmailId === email.id;
+              const unread = email.unread ?? false;
 
+              // Format date nicely
+              let dateStr = "";
+            if (email.createdAt) {
+  const date = new Date(email.createdAt);
+
+  if (isToday(date)) {
+    dateStr = format(date, "HH:mm");
+  } else {
+    dateStr = format(date, "MMM d");
+  }
+}
               return (
                 <button
                   key={email.id}
-                  onClick={() =>
-                    onSelectEmail?.(email)
-                  }
+                  onClick={() => onSelectEmail?.(email)}
                   className={`
                     mb-2
                     w-full
@@ -100,6 +110,9 @@ const filteredEmails = useMemo(() => {
                     text-left
                     transition-all
                     duration-200
+                    flex
+                    flex-col
+                    relative
 
                     ${
                       active
@@ -108,21 +121,26 @@ const filteredEmails = useMemo(() => {
                     }
                   `}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="truncate text-xs text-white/40">
-                      {email.id}
+                  {/* Unread dot indicator */}
+                  {unread && (
+                    <span className="absolute top-5 left-2 w-2 h-2 rounded-full bg-primary" />
+                  )}
+
+                  <div className={`flex items-start justify-between gap-4 w-full ${unread ? "pl-2" : ""}`}>
+                    <span className={`truncate text-sm ${unread ? "font-bold text-white" : "font-medium text-white/80"}`}>
+                      {email.sender || "Unknown"}
                     </span>
 
-                    <span className="text-xs text-white/40">
-                      {email.createdAt
-                        ? new Date(
-                            email.createdAt
-                          ).toLocaleDateString()
-                        : ""}
+                    <span className="text-xs text-white/40 whitespace-nowrap">
+                      {dateStr}
                     </span>
                   </div>
 
-                  <p className="mt-2 line-clamp-3 text-sm text-white/90">
+                  <div className={`mt-1 truncate text-xs w-full ${unread ? "font-semibold text-white/90" : "text-white/60"} ${unread ? "pl-2" : ""}`}>
+                    {email.subject || "(No Subject)"}
+                  </div>
+
+                  <p className={`mt-2 line-clamp-2 text-xs text-white/40 ${unread ? "pl-2" : ""}`}>
                     {email.snippet}
                   </p>
                 </button>

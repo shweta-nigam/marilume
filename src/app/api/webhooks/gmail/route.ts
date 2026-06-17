@@ -4,11 +4,12 @@ export async function POST(
   const payload =
     await req.json();
 
-  // save email
-
+  // save email placeholder
+  /*
   await prisma.email.upsert({
     ...
   });
+  */
 
   return Response.json({
     success: true,
