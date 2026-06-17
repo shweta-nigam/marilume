@@ -6,25 +6,31 @@ import {
 
 export default function FeaturesSection() {
   const features = [
-    {
-      icon: <FiMail />,
-      title: "Email that organizes itself",
-      description:
-        "Marilume prioritizes important conversations, drafts replies, and surfaces actions before they become problems.",
-    },
-    {
-      icon: <FiCalendar />,
-      title: "A calendar that thinks ahead",
-      description:
-        "Automatically prepare for meetings, manage conflicts, and keep your day aligned with your priorities.",
-    },
-    {
-      icon: <FiZap />,
-      title: "Automation without complexity",
-      description:
-        "Turn repetitive workflows into intelligent actions powered by AI.",
-    },
-  ];
+  {
+    icon: <FiMail />,
+    title: "Email that organizes itself",
+    description:
+      "Marilume prioritizes important conversations, drafts replies, and surfaces actions before they become problems.",
+    video: "/videos/email-demo.mp4",
+    poster: "/images/m-1.1.png",
+  },
+  {
+    icon: <FiCalendar />,
+    title: "A calendar that thinks ahead",
+    description:
+      "Automatically prepare for meetings, manage conflicts, and keep your day aligned with your priorities.",
+    video: "/videos/calendar-demo.mp4",
+    poster: "/images/m-2.1.png",
+  },
+  {
+    icon: <FiZap />,
+    title: "Automation without complexity",
+    description:
+      "Turn repetitive workflows into intelligent actions powered by AI.",
+    video: "/videos/automation-demo.mp4",
+    poster: "/images/m-3.1.png",
+  },
+];
 
 //   add short compressed video on visulas sections
 
@@ -118,18 +124,24 @@ export default function FeaturesSection() {
                     backdrop-blur-xl
                   "
                 >
-                  <div
-                    className="
-                      aspect-[16/10]
-                      rounded-2xl
-                      border
-                      border-white/5
-                      bg-gradient-to-br
-                      from-primary/20
-                      via-surface
-                      to-surface
-                    "
-                  />
+                 <video
+  className="
+    aspect-[16/10]
+    w-full
+    rounded-2xl
+    border
+    border-white/5
+    object-cover
+  "
+  autoPlay
+  muted
+  loop
+  playsInline
+  preload="metadata"
+  poster={feature.poster}
+>
+  <source src={feature.video} type="video/mp4" />
+</video>
 
                   <div
                     className="
