@@ -14,6 +14,7 @@ export const auth = betterAuth({
     "http://localhost:3001",
     "http://127.0.0.1:3001",
     "https://www.marilume.xyz",
+    "https://marilume.xyz",
   ],
 
   user: {
