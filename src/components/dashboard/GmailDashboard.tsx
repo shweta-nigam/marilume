@@ -11,7 +11,9 @@ interface GmailDashboardProps {
 }
 
 export default function GmailDashboard({ initialEmails }: GmailDashboardProps) {
-  const [selectedEmail, setSelectedEmail] = useState<EmailSearchResult | null>(null);
+  const [selectedEmail, setSelectedEmail] = useState<EmailSearchResult | null>(
+    initialEmails && initialEmails.length > 0 ? initialEmails[0] : null
+  );
   const [replyText, setReplyText] = useState("");
 
   const handleSelectEmail = (email: EmailSearchResult) => {

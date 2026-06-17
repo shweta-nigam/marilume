@@ -17,7 +17,7 @@ export default async function GmailPage() {
   let emails: EmailSearchResult[] = [];
   try {
     const tenantId = await ensureUserTenantProvisioned(session.user.id);
-    emails = await getRecentEmails(tenantId);
+    emails = await getRecentEmails(tenantId, 5);
   } catch (error) {
     console.error("[GmailPage] Error loading emails:", error);
   }
