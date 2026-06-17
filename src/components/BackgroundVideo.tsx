@@ -66,7 +66,7 @@ export default function BackgroundVideo() {
         muted
         loop
         playsInline
-        poster="/images/hero-poster.webp"
+        poster="/images/hero-backup-bg.png"
         onLoadedData={() => setVideoLoaded(true)}
         className={`
           absolute inset-0
