@@ -143,7 +143,7 @@ export default function Hero() {
             </Link>
 
             <Link
-              href="/"
+              href="#features"
               className="
           rounded-xl
           border

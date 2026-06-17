@@ -28,7 +28,9 @@ export default async function CalendarPage() {
     const connection = await prisma.corsairAccount.findFirst({
       where: {
         tenantId,
-        integrationId: "googlecalendar",
+        integration: {
+          name: "googlecalendar",
+        },
       },
     });
     isConnected = !!connection;

@@ -27,7 +27,9 @@ export default async function GmailPage() {
     const connection = await prisma.corsairAccount.findFirst({
       where: {
         tenantId,
-        integrationId: "gmail",
+        integration: {
+          name: "gmail",
+        },
       },
     });
     isConnected = !!connection;

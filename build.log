@@ -1,0 +1,9 @@
+
+> merilume@0.1.0 build E:\Journey\07-superhuman-hackathon\marilume
+> next build
+
+▲ Next.js 16.2.9 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+ ELIFECYCLE  Command failed with exit code 1.

@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 const plans = [
   {
@@ -236,7 +237,8 @@ export default function PricingSection() {
                   </div>
                 </div>
 
-                <button
+                <Link
+                  href="/signup"
                   className={`
                     mt-8
                     w-full
@@ -247,6 +249,8 @@ export default function PricingSection() {
                     font-medium
                     transition-all
                     duration-300
+                    text-center
+                    block
                     ${
                       plan.highlighted
                         ? `
@@ -266,7 +270,7 @@ export default function PricingSection() {
                   `}
                 >
                   {plan.cta}
-                </button>
+                </Link>
 
                 <div
                   className="

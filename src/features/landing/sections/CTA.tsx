@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function CTASection() {
   return (
     <section className="relative overflow-hidden py-40">
@@ -126,7 +128,8 @@ export default function CTASection() {
               sm:flex-row
             "
           >
-            <button
+            <Link
+              href="/signup"
               className="
                 rounded-xl
                 border
@@ -140,12 +143,14 @@ export default function CTASection() {
                 duration-300
                 hover:scale-105
                 hover:shadow-[0_0_40px_rgba(240,28,112,0.45)]
+                text-center
               "
             >
               Get Started
-            </button>
+            </Link>
 
-            <button
+            <Link
+              href="/signup"
               className="
                 rounded-xl
                 border
@@ -160,10 +165,11 @@ export default function CTASection() {
                 duration-300
                 hover:border-primary/40
                 hover:bg-surface
+                text-center
               "
             >
               Schedule Demo
-            </button>
+            </Link>
           </div>
 
           {/* Trust Text */}

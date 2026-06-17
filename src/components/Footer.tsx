@@ -110,7 +110,8 @@ export default function Footer() {
             </p>
           </div>
 
-          <button
+          <Link
+            href="/signup"
             className="
               group
               inline-flex
@@ -139,7 +140,7 @@ export default function Footer() {
                 group-hover:-translate-y-1
               "
             />
-          </button>
+          </Link>
         </div>
 
         {/* Main Footer */}
