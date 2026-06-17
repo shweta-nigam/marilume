@@ -13,9 +13,14 @@ interface Message {
 interface AgentPanelProps {
   selectedEmail?: EmailSearchResult | null;
   onClearSelectedEmail?: () => void;
+  onDraftGenerated?: (text: string) => void;
 }
 
-export default function AgentPanel({ selectedEmail = null, onClearSelectedEmail }: AgentPanelProps) {
+export default function AgentPanel({
+  selectedEmail = null,
+  onClearSelectedEmail,
+  onDraftGenerated,
+}: AgentPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -49,7 +54,22 @@ export default function AgentPanel({ selectedEmail = null, onClearSelectedEmail 
       const data = await res.json();
 
       if (data.success) {
-        setMessages((prev) => [...prev, { role: "assistant", text: data.response }]);
+        let text = data.response || "";
+        const draftRegex = /\[DRAFT\]([\s\S]*?)\[\/DRAFT\]/i;
+        const match = text.match(draftRegex);
+
+        if (match && match[1]) {
+          const draftContent = match[1].trim();
+          if (onDraftGenerated) {
+            onDraftGenerated(draftContent);
+          }
+          text = text.replace(draftRegex, "").trim();
+          if (!text) {
+            text = "I have drafted a reply for you! You can review, edit, and send it in the reply section in the center panel.";
+          }
+        }
+
+        setMessages((prev) => [...prev, { role: "assistant", text }]);
         router.refresh();
       } else {
         setMessages((prev) => [
@@ -78,7 +98,7 @@ export default function AgentPanel({ selectedEmail = null, onClearSelectedEmail 
     if (actionType === "summarize") {
       prompt = `Summarize this email from "${selectedEmail.sender}" regarding "${selectedEmail.subject}": "${selectedEmail.snippet}"`;
     } else if (actionType === "reply") {
-      prompt = `Draft a polite reply to this email from "${selectedEmail.sender}" regarding "${selectedEmail.subject}": "${selectedEmail.snippet}"`;
+      prompt = `Draft a polite reply to this email from "${selectedEmail.sender}" regarding "${selectedEmail.subject}": "${selectedEmail.snippet}". You MUST wrap the draft reply inside [DRAFT] and [/DRAFT] tags.`;
     }
 
     handleSendMessage(prompt);

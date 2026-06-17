@@ -9,7 +9,7 @@ export type EmailSearchResult = {
   subject?: string;
   sender?: string;
   unread?: boolean;
-
+  body?: string;
 };
 
 export async function searchEmails(
@@ -50,6 +50,48 @@ export async function searchEmails(
     .map((thread) => mapThread(thread, messages));
 }
 
+function getMessageBody(message: any): string {
+  const payload = message?.data?.payload;
+  if (!payload) return "";
+
+  const decodeBase64 = (str: string) => {
+    try {
+      const base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+      return Buffer.from(base64, "base64").toString("utf-8");
+    } catch {
+      return "";
+    }
+  };
+
+  if (payload.body?.data) {
+    return decodeBase64(payload.body.data);
+  }
+
+  const findBodyInParts = (parts: any[]): string => {
+    for (const part of parts) {
+      if (part.mimeType === "text/plain" && part.body?.data) {
+        return decodeBase64(part.body.data);
+      }
+      if (part.parts) {
+        const body = findBodyInParts(part.parts);
+        if (body) return body;
+      }
+    }
+    for (const part of parts) {
+      if (part.mimeType === "text/html" && part.body?.data) {
+        return decodeBase64(part.body.data);
+      }
+    }
+    return "";
+  };
+
+  if (payload.parts) {
+    return findBodyInParts(payload.parts);
+  }
+
+  return message?.data?.snippet || "";
+}
+
 function mapThread(thread: any, messages: any[] = []): EmailSearchResult {
   const messagesInThread = messages.filter(
     (m: any) => m.data?.threadId === thread.entity_id || m.data?.threadId === thread.data?.id
@@ -79,12 +121,15 @@ function mapThread(thread: any, messages: any[] = []): EmailSearchResult {
     ? messagesInThread.some((m: any) => m.data?.labelIds?.includes('UNREAD'))
     : (thread.data?.unread ?? false);
 
+  const body = latestMessage ? getMessageBody(latestMessage) : (thread.data?.snippet ?? "");
+
   return {
     id: thread.entity_id,
     snippet: thread.data?.snippet ?? "",
     subject,
     sender,
     unread,
+    body,
     historyId: thread.data?.historyId,
     createdAt: thread.data?.createdAt ?? null,
   };
