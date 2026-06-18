@@ -1,5 +1,3 @@
-import { query, createSdkMcpServer } from "@anthropic-ai/claude-agent-sdk";
-import { ClaudeProvider } from "@corsair-dev/mcp";
 import { corsair } from "@/server/corsair";
 import { MODEL } from "@/server/agent";
 import { ensureUserTenantProvisioned } from "@/services/tenant.service";
@@ -41,6 +39,7 @@ export async function runAssistant(tenantId: string, message: string): Promise<s
 
 
     // 1. Build Corsair tools specifically bound to this tenant
+    const { ClaudeProvider } = await import("@corsair-dev/mcp");
     const provider = new ClaudeProvider();
     const corsairTools = await provider.build({
       corsair: corsair.withTenant(tenantId),
@@ -49,6 +48,7 @@ export async function runAssistant(tenantId: string, message: string): Promise<s
     });
 
     // 2. Create an SDK-level MCP server wrapping these tools
+    const { query, createSdkMcpServer } = await import("@anthropic-ai/claude-agent-sdk");
     const corsairServer = createSdkMcpServer({
       name: "corsair",
       tools: corsairTools,

@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
- serverExternalPackages: [
-  "@anthropic-ai/claude-agent-sdk",
-]
+ serverExternalPackages: []
 };
 
 export default nextConfig;
