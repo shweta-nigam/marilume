@@ -45,8 +45,8 @@ export default function GmailDashboard({ initialEmails }: GmailDashboardProps) {
   }));
 
   return (
-    <div className="grid grid-cols-6 gap-6 h-full text-white">
-      <div className={`col-span-6 lg:col-span-2 h-full ${activeView === "list" ? "block" : "hidden lg:block"}`}>
+    <div className="grid h-full min-h-0 grid-cols-6 gap-6 text-white">
+      <div className={`col-span-6 lg:col-span-2 h-full min-h-0 ${activeView === "list" ? "block" : "hidden lg:block"}`}>
         <GmailPreview
           emails={optimizedEmails}
           selectedEmailId={selectedEmail?.id}
@@ -54,7 +54,7 @@ export default function GmailDashboard({ initialEmails }: GmailDashboardProps) {
         />
       </div>
 
-      <div className={`col-span-6 lg:col-span-2 h-full ${activeView === "detail" ? "block" : "hidden lg:block"}`}>
+      <div className={`col-span-6 lg:col-span-2 h-full min-h-0 ${activeView === "detail" ? "block" : "hidden lg:block"}`}>
         <EmailDetail
           email={selectedEmail}
           replyText={replyText}
@@ -64,7 +64,7 @@ export default function GmailDashboard({ initialEmails }: GmailDashboardProps) {
         />
       </div>
 
-      <div className={`col-span-6 lg:col-span-2 h-full ${activeView === "agent" ? "block" : "hidden lg:block"}`}>
+      <div className={`col-span-6 lg:col-span-2 h-full min-h-0 ${activeView === "agent" ? "block" : "hidden lg:block"}`}>
         <AgentPanel
           selectedEmail={selectedEmail}
           onClearSelectedEmail={() => {

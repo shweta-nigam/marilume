@@ -87,17 +87,23 @@ export default function EmailDetail({
     } else {
       dateStr = format(date, "MMM d, yyyy 'at' HH:mm");
     }
-  }
+  }  const isHtml = !!(
+    email.body &&
+    (email.body.trim().startsWith("<") ||
+      email.body.includes("</div>") ||
+      email.body.includes("</a>") ||
+      /<[a-z][\s\S]*>/i.test(email.body))
+  );
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-black/30 backdrop-blur-xl">
+    <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-black/30 backdrop-blur-xl">
       {/* Mobile Navigation Header */}
       {(onBackToList || onOpenAgent) && (
-        <div className="lg:hidden flex items-center justify-between border-b border-white/10 p-4 bg-white/[0.04]">
+        <div className="lg:hidden flex items-center justify-between border-b border-white/10 p-3 bg-white/[0.04] shrink-0">
           {onBackToList && (
             <button
               onClick={onBackToList}
-              className="flex items-center gap-1.5 text-xs text-white/70 hover:text-white bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 transition-colors"
+              className="flex items-center gap-1.5 text-xs text-white/70 hover:text-white bg-white/5 px-2.5 py-1.5 rounded-xl border border-white/10 transition-colors"
             >
               ← Back to Inbox
             </button>
@@ -105,7 +111,7 @@ export default function EmailDetail({
           {onOpenAgent && (
             <button
               onClick={onOpenAgent}
-              className="flex items-center gap-1.5 text-xs bg-primary hover:bg-primary/95 text-white px-3 py-1.5 rounded-xl transition-all font-medium"
+              className="flex items-center gap-1.5 text-xs bg-primary hover:bg-primary/95 text-white px-2.5 py-1.5 rounded-xl transition-all font-medium"
             >
               <Sparkles className="h-3.5 w-3.5" /> Mari AI Agent
             </button>
@@ -114,33 +120,31 @@ export default function EmailDetail({
       )}
 
       {/* Subject Line Header */}
-      <div className="border-b border-white/10 p-5 bg-white/[0.02]">
-        <h2 className="text-xl font-bold text-white tracking-tight line-clamp-2">
+      <div className="border-b border-white/10 px-6 py-4 bg-white/[0.02] shrink-0">
+        <h2 className="text-lg font-bold text-white tracking-tight line-clamp-2">
           {email.subject || "(No Subject)"}
         </h2>
         
-        <div className="mt-3 flex items-center justify-between gap-4">
+        <div className="mt-2.5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold text-primary">
+            <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold text-primary">
               {email.sender ? email.sender.charAt(0).toUpperCase() : "?"}
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-medium text-white/90">
+              <span className="text-xs font-medium text-white/90">
                 {email.sender}
               </span>
             </div>
           </div>
-          <span className="text-xs text-white/40">{dateStr}</span>
+          <span className="text-[10px] text-white/40">{dateStr}</span>
         </div>
       </div>
 
       {/* Body Area */}
-      <div className="flex-1 overflow-hidden p-6">
+      <div className={`flex-1 p-6  ${isHtml ? "overflow-hidden" : "overflow-y-auto"}`}>
+      {/* <div className="flex-1 overflow-y-auto p-6 pb-[280px] min-h-0"> */}
         {email.body ? (
-          (email.body.trim().startsWith("<") ||
-           email.body.includes("</div>") ||
-           email.body.includes("</a>") ||
-           /<[a-z][\s\S]*>/i.test(email.body)) ? (
+          isHtml ? (
             <iframe
               srcDoc={email.body}
               title="Email Content"
@@ -148,7 +152,7 @@ export default function EmailDetail({
               sandbox="allow-popups allow-popups-to-escape-sandbox"
             />
           ) : (
-            <div className="h-full overflow-y-auto text-sm leading-relaxed text-white/80 whitespace-pre-wrap font-sans break-words">
+            <div className="text-sm leading-relaxed text-white/80 whitespace-pre-wrap font-sans break-words">
               {email.body}
             </div>
           )
@@ -160,20 +164,20 @@ export default function EmailDetail({
       </div>
 
       {/* Reply Section */}
-      <div className="border-t border-white/10 p-5 bg-white/[0.01]">
-        <div className="flex items-center gap-2 mb-3">
-          <CornerUpLeft className="h-4 w-4 text-primary" />
+      <div className="absolute bottom-4 left-4 right-4 z-10 border border-white/10 bg-black/65 backdrop-blur-xl p-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.55)]">
+        <div className="flex items-center gap-2 mb-2">
+          <CornerUpLeft className="h-3.5 w-3.5 text-primary" />
           <span className="text-xs font-semibold text-white/60">Reply to this conversation</span>
         </div>
 
         {error && (
-          <div className="mb-3 text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-2 rounded-lg">
+          <div className="mb-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-2 rounded-lg">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="mb-3 text-xs text-green-400 bg-green-500/10 border border-green-500/20 p-2 rounded-lg">
+          <div className="mb-2 text-xs text-green-400 bg-green-500/10 border border-green-500/20 p-2 rounded-lg">
             Reply sent successfully!
           </div>
         )}
@@ -183,14 +187,14 @@ export default function EmailDetail({
             value={replyText}
             onChange={(e) => onReplyTextChange(e.target.value)}
             placeholder="Write your response, or ask Mari on the right to draft a reply..."
-            rows={4}
+            rows={3}
             className="
               w-full
               rounded-xl
               border
               border-white/10
               bg-white/5
-              p-4
+              p-3
               text-sm
               text-white
               placeholder:text-white/30
@@ -202,7 +206,7 @@ export default function EmailDetail({
           />
         </div>
 
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-2.5 flex items-center justify-between">
           <div className="text-[10px] text-white/30 flex items-center gap-1.5">
             <Sparkles className="h-3 w-3 text-primary shrink-0" />
             <span>AI drafts will populate here automatically</span>
