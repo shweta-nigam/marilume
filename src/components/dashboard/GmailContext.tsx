@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import type { EmailSearchResult } from "@/services/email.service";
-import { markThreadAsRead } from "@/actions/email.action";
+import { markThreadAsRead, searchEmailsAction } from "@/actions/email.action";
 import { useParams, useRouter } from "next/navigation";
 
 interface GmailContextType {
@@ -14,6 +14,13 @@ interface GmailContextType {
   clearSelectedEmail: () => void;
   readEmailIds: string[];
   setActiveEmail: (email: EmailSearchResult | null) => void;
+  
+  // Search features
+  searchQuery: string;
+  searchResults: EmailSearchResult[] | null;
+  isSearching: boolean;
+  executeSearch: (query: string) => Promise<void>;
+  clearSearch: () => void;
 }
 
 const GmailContext = createContext<GmailContextType | null>(null);
@@ -25,17 +32,31 @@ export function GmailProvider({
   children: React.ReactNode;
   initialEmails: EmailSearchResult[];
 }) {
-  const [emails] = useState<EmailSearchResult[]>(initialEmails);
+  const [emails, setEmails] = useState<EmailSearchResult[]>(initialEmails);
   const [activeEmail, setActiveEmail] = useState<EmailSearchResult | null>(null);
   const [replyText, setReplyText] = useState("");
   const [readEmailIds, setReadEmailIds] = useState<string[]>([]);
+  
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<EmailSearchResult[] | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+
   const params = useParams();
   const router = useRouter();
   const emailId = params?.emailId as string | undefined;
 
-  // Find the selected email either from activeEmail state or the initialEmails list
+  // Sync initialEmails with state
+  useEffect(() => {
+    setEmails(initialEmails);
+  }, [initialEmails]);
+
+  // The active list of emails is either search results or the default recent emails
+  const activeEmailsList = searchResults !== null ? searchResults : emails;
+
+  // Find the selected email either from activeEmail state or the active list of emails
   const selectedEmail =
-    activeEmail || emails.find((e) => e.id === emailId) || null;
+    activeEmail || activeEmailsList.find((e) => e.id === emailId) || null;
 
   // Mark selected email as read when it changes
   useEffect(() => {
@@ -58,7 +79,30 @@ export function GmailProvider({
     router.push("/dashboard/gmail");
   };
 
-  const optimizedEmails = emails.map((email) => ({
+  const executeSearch = async (query: string) => {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      clearSearch();
+      return;
+    }
+    setIsSearching(true);
+    setSearchQuery(trimmed);
+    try {
+      const results = await searchEmailsAction(trimmed);
+      setSearchResults(results);
+    } catch (err) {
+      console.error("Search failed:", err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    setSearchResults(null);
+  };
+
+  const optimizedEmails = activeEmailsList.map((email) => ({
     ...email,
     unread: readEmailIds.includes(email.id) ? false : email.unread,
   }));
@@ -74,6 +118,11 @@ export function GmailProvider({
         clearSelectedEmail,
         readEmailIds,
         setActiveEmail,
+        searchQuery,
+        searchResults,
+        isSearching,
+        executeSearch,
+        clearSearch,
       }}
     >
       {children}

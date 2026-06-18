@@ -6,6 +6,10 @@ import { ensureUserTenantProvisioned } from "@/services/tenant.service";
 
 // Define the environment variables safely
 const apiKey = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY;
+if (apiKey) {
+  process.env.ANTHROPIC_API_KEY = apiKey;
+  process.env.CLAUDE_API_KEY = apiKey;
+}
 const childEnv = {
   ...process.env,
   ANTHROPIC_API_KEY: apiKey,

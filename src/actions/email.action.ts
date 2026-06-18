@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { ensureUserTenantProvisioned } from "@/services/tenant.service";
 import { corsair } from "@/server/corsair";
+import { searchEmails } from "@/services/email.service";
 
 export async function sendReply(threadId: string, replyText: string) {
   try {
@@ -131,6 +132,24 @@ export async function markThreadAsRead(threadId: string) {
   } catch (error: any) {
     console.error("[markThreadAsRead action error]", error);
     return { success: false, error: error.message || "Failed to mark as read" };
+  }
+}
+
+export async function searchEmailsAction(query: string) {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user?.id) {
+      throw new Error("Unauthorized");
+    }
+
+    const tenantId = await ensureUserTenantProvisioned(session.user.id);
+    return await searchEmails(tenantId, query);
+  } catch (error: any) {
+    console.error("[searchEmailsAction error]", error);
+    throw error;
   }
 }
 

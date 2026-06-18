@@ -25,29 +25,132 @@ export async function searchEmails(
     return [];
   }
 
-  const threads = await corsair
-    .withTenant(tenantId)
-    .gmail
-    .db
-    .threads
-    .search({
-      data: {
-        snippet: {
-          contains: query.trim(),
-        },
-      },
-    });
+  let matchedThreads: any[] = [];
 
-  const messages = await corsair
+  try {
+    console.log(`[searchEmails] Querying live Gmail API with query: "${query}"`);
+    const apiResult = await corsair
+      .withTenant(tenantId)
+      .gmail
+      .api
+      .threads
+      .list({
+        q: query.trim(),
+        maxResults: limit,
+      });
+
+    const threadIds = apiResult.threads?.map((t: any) => t.id) || [];
+    
+    // Fetch all threads from local database mirror
+    const allDbThreads = await corsair
+      .withTenant(tenantId)
+      .gmail
+      .db
+      .threads
+      .list();
+
+    // Preserve the exact order returned by the live API
+    matchedThreads = threadIds
+      .map(id => allDbThreads.find((t: any) => (t.entity_id || t.data?.id) === id))
+      .filter(Boolean);
+      
+    console.log(`[searchEmails] Found ${matchedThreads.length} matching threads in DB after live sync.`);
+  } catch (error) {
+    console.error("[searchEmails] Error searching live threads from API, falling back to local DB search:", error);
+    try {
+      const localThreads = await corsair
+        .withTenant(tenantId)
+        .gmail
+        .db
+        .threads
+        .search({
+          data: {
+            snippet: {
+              contains: query.trim(),
+            },
+          },
+        });
+      matchedThreads = localThreads.slice(0, limit);
+    } catch (dbError) {
+      console.error("[searchEmails] Local database search failed:", dbError);
+    }
+  }
+
+  // Load all messages from database to use for sync checking and mapping
+  let messages = await corsair
     .withTenant(tenantId)
     .gmail
     .db
     .messages
     .list();
 
-  return threads
-    .slice(0, limit)
-    .map((thread) => mapThread(thread, messages));
+  // For each of the matched threads, verify if it has synced messages.
+  // If not, fetch details from the API.
+  const syncPromises = matchedThreads.map(async (thread) => {
+    const threadId = thread.entity_id || thread.data?.id;
+    const messagesInThread = messages.filter(
+      (m: any) => m.data?.threadId === threadId
+    );
+
+    // Needs sync if no messages in DB or if existing messages do not have subject/sender details
+    const needsSync =
+      messagesInThread.length === 0 ||
+      messagesInThread.every((m) => !m.data?.from || !m.data?.subject);
+
+    if (needsSync) {
+      try {
+        console.log(`[searchEmails] Syncing message details for thread: ${threadId}`);
+        const threadDetail = await corsair
+          .withTenant(tenantId)
+          .gmail
+          .api
+          .threads
+          .get({
+            id: threadId,
+          });
+
+        if (threadDetail.messages && threadDetail.messages.length > 0) {
+          const firstMsg = threadDetail.messages[0];
+          if (firstMsg.id) {
+            await corsair
+              .withTenant(tenantId)
+              .gmail
+              .api
+              .messages
+              .get({
+                id: firstMsg.id,
+              });
+          }
+
+          const latestMsg = threadDetail.messages[threadDetail.messages.length - 1];
+          if (latestMsg.id && latestMsg.id !== firstMsg.id) {
+            await corsair
+              .withTenant(tenantId)
+              .gmail
+              .api
+              .messages
+              .get({
+                id: latestMsg.id,
+              });
+          }
+        }
+      } catch (err) {
+        console.error(`[searchEmails] Failed to sync message details for thread ${threadId}:`, err);
+      }
+    }
+  });
+
+  await Promise.all(syncPromises);
+
+  // Reload messages from DB after syncing is done
+  messages = await corsair
+    .withTenant(tenantId)
+    .gmail
+    .db
+    .messages
+    .list();
+
+  return matchedThreads.map((thread) => mapThread(thread, messages));
 }
 
 function getMessageBody(message: any): string {
@@ -97,10 +200,15 @@ function mapThread(thread: any, messages: any[] = []): EmailSearchResult {
     (m: any) => m.data?.threadId === thread.entity_id || m.data?.threadId === thread.data?.id
   );
 
+  const getMessageDate = (msg: any) => {
+    if (msg?.data?.internalDate) {
+      return Number(msg.data.internalDate);
+    }
+    return msg?.data?.createdAt ? new Date(msg.data.createdAt).getTime() : 0;
+  };
+
   const sortedMessages = [...messagesInThread].sort(
-    (a: any, b: any) =>
-      new Date(a.data?.createdAt ?? 0).getTime() -
-      new Date(b.data?.createdAt ?? 0).getTime()
+    (a: any, b: any) => getMessageDate(a) - getMessageDate(b)
   );
 
   const firstMessage = sortedMessages[0];
@@ -123,6 +231,11 @@ function mapThread(thread: any, messages: any[] = []): EmailSearchResult {
 
   const body = latestMessage ? getMessageBody(latestMessage) : (thread.data?.snippet ?? "");
 
+  const latestMessageDate = latestMessage ? getMessageDate(latestMessage) : 0;
+  const threadCreatedAt = latestMessageDate > 0
+    ? new Date(latestMessageDate)
+    : (thread.data?.createdAt ? new Date(thread.data.createdAt) : null);
+
   return {
     id: thread.entity_id,
     snippet: thread.data?.snippet ?? "",
@@ -131,7 +244,7 @@ function mapThread(thread: any, messages: any[] = []): EmailSearchResult {
     unread,
     body,
     historyId: thread.data?.historyId,
-    createdAt: thread.data?.createdAt ?? null,
+    createdAt: threadCreatedAt,
   };
 }
 
@@ -198,22 +311,36 @@ export async function getRecentEmails(
     .threads
     .list();
 
-  // Sort by createdAt descending and slice to limit
-  const topThreads = threads
-    .sort(
-      (a, b) =>
-        new Date(b.data?.createdAt ?? 0).getTime() -
-        new Date(a.data?.createdAt ?? 0).getTime()
-    )
-    .slice(0, limit);
-
-  // 3. Load messages from local database mirror
+  // 3. Load messages from local database mirror (loaded early to use for sorting)
   let messages = await corsair
     .withTenant(tenantId)
     .gmail
     .db
     .messages
     .list();
+
+  // Helper to determine the actual date of the latest message in a thread
+  const getThreadDate = (thread: any) => {
+    const threadId = thread.entity_id || thread.data?.id;
+    const threadMessages = messages.filter(
+      (m: any) => m.data?.threadId === threadId
+    );
+    if (threadMessages.length > 0) {
+      const dates = threadMessages.map((m: any) => {
+        if (m.data?.internalDate) {
+          return Number(m.data.internalDate);
+        }
+        return m.data?.createdAt ? new Date(m.data.createdAt).getTime() : 0;
+      });
+      return Math.max(...dates);
+    }
+    return thread.data?.createdAt ? new Date(thread.data.createdAt).getTime() : 0;
+  };
+
+  // Sort by latest message date descending and slice to limit
+  const topThreads = threads
+    .sort((a, b) => getThreadDate(b) - getThreadDate(a))
+    .slice(0, limit);
 
   // 4. For each of the top threads, verify if it has synced messages.
   // If not, fetch details from the API.

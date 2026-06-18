@@ -1,9 +1,10 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState, useEffect } from "react";
 import type { EmailSearchResult } from "@/services/email.service";
 import { format, isToday } from "date-fns";
+import { useGmail } from "./GmailContext";
 
 interface GmailPreviewProps {
   emails: EmailSearchResult[];
@@ -18,22 +19,27 @@ export default function GmailPreview({
   selectedEmailId,
   onSelectEmail,
 }: GmailPreviewProps) {
-  const [search, setSearch] = useState("");
+  const { searchQuery, executeSearch, clearSearch, isSearching } = useGmail();
+  const [search, setSearch] = useState(searchQuery);
 
-const filteredEmails = useMemo(() => {
-  const emailList = emails ?? [];
+  // Sync search state if changed externally (e.g. cleared)
+  useEffect(() => {
+    setSearch(searchQuery);
+  }, [searchQuery]);
 
-  if (!search.trim()) {
-    return emailList;
-  }
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      executeSearch(search);
+    }
+  };
 
-  return emailList.filter((email) =>
-    email.snippet
-      ?.toLowerCase()
-      .includes(search.toLowerCase())
-  );
-}, [emails, search]);
-
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setSearch(val);
+    if (!val.trim()) {
+      clearSearch();
+    }
+  };
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-black/30 backdrop-blur-xl">
@@ -44,8 +50,9 @@ const filteredEmails = useMemo(() => {
 
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search emails..."
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Search emails (press Enter)..."
             className="
               h-11
               w-full
@@ -68,13 +75,13 @@ const filteredEmails = useMemo(() => {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        {loading ? (
+        {loading || isSearching ? (
           <div className="flex h-full items-center justify-center">
             <p className="text-sm text-white/50">
-              Loading emails...
+              {isSearching ? "Searching inbox..." : "Loading emails..."}
             </p>
           </div>
-        ) : filteredEmails.length === 0 ? (
+        ) : emails.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <p className="text-sm text-white/50">
               No emails found
@@ -82,7 +89,7 @@ const filteredEmails = useMemo(() => {
           </div>
         ) : (
           <div className="p-3">
-            {filteredEmails.map((email) => {
+            {emails.map((email) => {
               const active = selectedEmailId === email.id;
               const unread = email.unread ?? false;
 

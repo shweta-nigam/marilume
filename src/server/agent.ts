@@ -5,5 +5,5 @@ export const MODEL =
 
 export const anthropic =
   new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY!,
+    apiKey: process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY || "",
   });

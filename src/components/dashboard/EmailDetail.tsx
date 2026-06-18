@@ -87,12 +87,20 @@ export default function EmailDetail({
     } else {
       dateStr = format(date, "MMM d, yyyy 'at' HH:mm");
     }
-  }  const isHtml = !!(
+    }
+
+  const isHtml = !!(
     email.body &&
-    (email.body.trim().startsWith("<") ||
-      email.body.includes("</div>") ||
+    (email.body.includes("</div>") ||
       email.body.includes("</a>") ||
-      /<[a-z][\s\S]*>/i.test(email.body))
+      email.body.includes("</p>") ||
+      email.body.includes("<br") ||
+      email.body.includes("<div") ||
+      email.body.includes("<p ") ||
+      email.body.includes("<html") ||
+      email.body.includes("<body") ||
+      email.body.includes("<table") ||
+      /<(div|p|span|a|br|html|body|table|tr|td|style|meta|link|h[1-6])\b[^>]*>/i.test(email.body))
   );
 
   return (
