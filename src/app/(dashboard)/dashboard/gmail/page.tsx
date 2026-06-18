@@ -104,7 +104,7 @@ export default async function GmailPage() {
   }
 
   return (
-    <div className="p-8 h-full">
+    <div className="p-4 md:p-8 h-full">
       <GmailDashboard initialEmails={emails} />
     </div>
   );

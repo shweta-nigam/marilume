@@ -14,12 +14,14 @@ interface AgentPanelProps {
   selectedEmail?: EmailSearchResult | null;
   onClearSelectedEmail?: () => void;
   onDraftGenerated?: (text: string) => void;
+  onBackToDetail?: () => void;
 }
 
 export default function AgentPanel({
   selectedEmail = null,
   onClearSelectedEmail,
   onDraftGenerated,
+  onBackToDetail,
 }: AgentPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -115,7 +117,19 @@ export default function AgentPanel({
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden rounded-3xl border border-white/10 bg-black/30 backdrop-blur-xl">
+    <div className="sidebar-scrollbar flex flex-col h-full overflow-hidden rounded-3xl border border-white/10 bg-black/30 backdrop-blur-xl">
+      {/* Mobile Back Header */}
+      {onBackToDetail && (
+        <div className="lg:hidden flex items-center border-b border-white/10 p-4 bg-white/[0.04]">
+          <button
+            onClick={onBackToDetail}
+            className="flex items-center gap-1.5 text-xs text-white/70 hover:text-white bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 transition-colors"
+          >
+            ← Back to Email
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between border-b border-white/10 p-4 bg-white/[0.02]">
         <div className="flex items-center gap-2">
