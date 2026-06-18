@@ -1,6 +1,10 @@
 import { corsair } from "@/server/corsair";
 import { MODEL } from "@/server/agent";
 import { ensureUserTenantProvisioned } from "@/services/tenant.service";
+import {
+  query,
+  createSdkMcpServer,
+} from "@anthropic-ai/claude-agent-sdk";
 
 // Define the environment variables safely
 const apiKey = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY;
@@ -48,7 +52,7 @@ export async function runAssistant(tenantId: string, message: string): Promise<s
     });
 
     // 2. Create an SDK-level MCP server wrapping these tools
-    const { query, createSdkMcpServer } = await import("@anthropic-ai/claude-agent-sdk");
+    // const { query, createSdkMcpServer } = await import("@anthropic-ai/claude-agent-sdk");
     const corsairServer = createSdkMcpServer({
       name: "corsair",
       tools: corsairTools,
