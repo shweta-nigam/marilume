@@ -77,7 +77,7 @@ export default function AgentPanel({
           }
           text = text.replace(draftRegex, "").trim();
           if (!text) {
-            text = "I have drafted a reply for you! You can review, edit, and send it in the reply section in the center panel.";
+            text = "I've prepared a draft reply for your review.";
           }
         }
 
