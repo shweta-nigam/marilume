@@ -11,12 +11,16 @@ interface EmailDetailProps {
   email?: EmailSearchResult | null;
   replyText: string;
   onReplyTextChange: (text: string) => void;
+  onBackToList?: () => void;
+  onOpenAgent?: () => void;
 }
 
 export default function EmailDetail({
   email = null,
   replyText,
   onReplyTextChange,
+  onBackToList,
+  onOpenAgent,
 }: EmailDetailProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -25,7 +29,15 @@ export default function EmailDetail({
 
   if (!email) {
     return (
-      <div className="flex h-full flex-col justify-center items-center text-center p-6 rounded-3xl border border-white/10 bg-black/30 backdrop-blur-xl">
+      <div className="flex h-full flex-col justify-center items-center text-center p-6 rounded-3xl border border-white/10 bg-black/30 backdrop-blur-xl relative">
+        {onBackToList && (
+          <button
+            onClick={onBackToList}
+            className="absolute top-4 left-4 lg:hidden flex items-center gap-1.5 text-xs text-white/60 hover:text-white bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 transition-colors"
+          >
+            ← Back to Inbox
+          </button>
+        )}
         <div className="rounded-full bg-white/5 p-4 mb-4">
           <Mail className="h-8 w-8 text-white/30" />
         </div>
@@ -79,6 +91,28 @@ export default function EmailDetail({
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-black/30 backdrop-blur-xl">
+      {/* Mobile Navigation Header */}
+      {(onBackToList || onOpenAgent) && (
+        <div className="lg:hidden flex items-center justify-between border-b border-white/10 p-4 bg-white/[0.04]">
+          {onBackToList && (
+            <button
+              onClick={onBackToList}
+              className="flex items-center gap-1.5 text-xs text-white/70 hover:text-white bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 transition-colors"
+            >
+              ← Back to Inbox
+            </button>
+          )}
+          {onOpenAgent && (
+            <button
+              onClick={onOpenAgent}
+              className="flex items-center gap-1.5 text-xs bg-primary hover:bg-primary/95 text-white px-3 py-1.5 rounded-xl transition-all font-medium"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> Mari AI Agent
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Subject Line Header */}
       <div className="border-b border-white/10 p-5 bg-white/[0.02]">
         <h2 className="text-xl font-bold text-white tracking-tight line-clamp-2">
@@ -101,11 +135,23 @@ export default function EmailDetail({
       </div>
 
       {/* Body Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className="flex-1 overflow-hidden p-6">
         {email.body ? (
-          <div className="text-sm leading-relaxed text-white/80 whitespace-pre-wrap font-sans break-words">
-            {email.body}
-          </div>
+          (email.body.trim().startsWith("<") ||
+           email.body.includes("</div>") ||
+           email.body.includes("</a>") ||
+           /<[a-z][\s\S]*>/i.test(email.body)) ? (
+            <iframe
+              srcDoc={email.body}
+              title="Email Content"
+              className="w-full h-full border-0 bg-white rounded-2xl"
+              sandbox="allow-popups allow-popups-to-escape-sandbox"
+            />
+          ) : (
+            <div className="h-full overflow-y-auto text-sm leading-relaxed text-white/80 whitespace-pre-wrap font-sans break-words">
+              {email.body}
+            </div>
+          )
         ) : (
           <div className="text-sm italic text-white/40">
             No message body available.

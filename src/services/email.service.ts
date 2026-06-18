@@ -172,6 +172,25 @@ export async function getRecentEmails(
   tenantId: string,
   limit = 20
 ): Promise<EmailSearchResult[]> {
+  if (!tenantId) {
+    return [];
+  }
+
+  // 1. Fetch live thread stubs from Google API to keep local mirror up-to-date
+  try {
+    await corsair
+      .withTenant(tenantId)
+      .gmail
+      .api
+      .threads
+      .list({
+        maxResults: limit,
+      });
+  } catch (error) {
+    console.error("[getRecentEmails] Error fetching live threads from API:", error);
+  }
+
+  // 2. Load threads from local database mirror
   const threads = await corsair
     .withTenant(tenantId)
     .gmail
@@ -179,25 +198,93 @@ export async function getRecentEmails(
     .threads
     .list();
 
-  const messages = await corsair
+  // Sort by createdAt descending and slice to limit
+  const topThreads = threads
+    .sort(
+      (a, b) =>
+        new Date(b.data?.createdAt ?? 0).getTime() -
+        new Date(a.data?.createdAt ?? 0).getTime()
+    )
+    .slice(0, limit);
+
+  // 3. Load messages from local database mirror
+  let messages = await corsair
     .withTenant(tenantId)
     .gmail
     .db
     .messages
     .list();
 
-  return threads
-    .sort(
-      (a, b) =>
-        new Date(
-          b.data?.createdAt ?? 0
-        ).getTime() -
-        new Date(
-          a.data?.createdAt ?? 0
-        ).getTime()
-    )
-    .slice(0, limit)
-    .map((thread) => mapThread(thread, messages));
+  // 4. For each of the top threads, verify if it has synced messages.
+  // If not, fetch details from the API.
+  const syncPromises = topThreads.map(async (thread) => {
+    const threadId = thread.entity_id || thread.data?.id;
+    const messagesInThread = messages.filter(
+      (m: any) => m.data?.threadId === threadId
+    );
+
+    // Needs sync if no messages in DB or if existing messages do not have subject/sender details
+    const needsSync =
+      messagesInThread.length === 0 ||
+      messagesInThread.every((m) => !m.data?.from || !m.data?.subject);
+
+    if (needsSync) {
+      try {
+        console.log(`[getRecentEmails] Syncing message details for thread: ${threadId}`);
+        const threadDetail = await corsair
+          .withTenant(tenantId)
+          .gmail
+          .api
+          .threads
+          .get({
+            id: threadId,
+          });
+
+        if (threadDetail.messages && threadDetail.messages.length > 0) {
+          // Sync first message (to get original subject)
+          const firstMsg = threadDetail.messages[0];
+          if (firstMsg.id) {
+            await corsair
+              .withTenant(tenantId)
+              .gmail
+              .api
+              .messages
+              .get({
+                id: firstMsg.id,
+              });
+          }
+
+          // Sync latest message (to get latest sender and body snippet)
+          const latestMsg = threadDetail.messages[threadDetail.messages.length - 1];
+          if (latestMsg.id && latestMsg.id !== firstMsg.id) {
+            await corsair
+              .withTenant(tenantId)
+              .gmail
+              .api
+              .messages
+              .get({
+                id: latestMsg.id,
+              });
+          }
+        }
+      } catch (err) {
+        console.error(`[getRecentEmails] Failed to sync message details for thread ${threadId}:`, err);
+      }
+    }
+  });
+
+  // Wait for parallel sync tasks to complete
+  await Promise.all(syncPromises);
+
+  // 5. Reload messages from DB after syncing is done
+  messages = await corsair
+    .withTenant(tenantId)
+    .gmail
+    .db
+    .messages
+    .list();
+
+  return topThreads.map((thread) => mapThread(thread, messages));
 }
 
 export async function getLatestEmail(

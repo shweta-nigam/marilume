@@ -17,6 +17,7 @@ export default function GmailDashboard({ initialEmails }: GmailDashboardProps) {
   );
   const [replyText, setReplyText] = useState("");
   const [readEmailIds, setReadEmailIds] = useState<string[]>([]);
+  const [activeView, setActiveView] = useState<"list" | "detail" | "agent">("list");
 
   // Mark first email as read on load
   useEffect(() => {
@@ -30,6 +31,7 @@ export default function GmailDashboard({ initialEmails }: GmailDashboardProps) {
   const handleSelectEmail = (email: EmailSearchResult) => {
     setSelectedEmail(email);
     setReplyText(""); // Reset reply editor when switching emails
+    setActiveView("detail"); // Switch to details view on mobile
     
     if (email.unread && !readEmailIds.includes(email.id)) {
       setReadEmailIds((prev) => [...prev, email.id]);
@@ -44,7 +46,7 @@ export default function GmailDashboard({ initialEmails }: GmailDashboardProps) {
 
   return (
     <div className="grid grid-cols-6 gap-6 h-full text-white">
-      <div className="col-span-2">
+      <div className={`col-span-6 lg:col-span-2 h-full ${activeView === "list" ? "block" : "hidden lg:block"}`}>
         <GmailPreview
           emails={optimizedEmails}
           selectedEmailId={selectedEmail?.id}
@@ -52,19 +54,28 @@ export default function GmailDashboard({ initialEmails }: GmailDashboardProps) {
         />
       </div>
 
-      <div className="col-span-2">
+      <div className={`col-span-6 lg:col-span-2 h-full ${activeView === "detail" ? "block" : "hidden lg:block"}`}>
         <EmailDetail
           email={selectedEmail}
           replyText={replyText}
           onReplyTextChange={setReplyText}
+          onBackToList={() => setActiveView("list")}
+          onOpenAgent={() => setActiveView("agent")}
         />
       </div>
 
-      <div className="col-span-2">
+      <div className={`col-span-6 lg:col-span-2 h-full ${activeView === "agent" ? "block" : "hidden lg:block"}`}>
         <AgentPanel
           selectedEmail={selectedEmail}
-          onClearSelectedEmail={() => setSelectedEmail(null)}
-          onDraftGenerated={setReplyText}
+          onClearSelectedEmail={() => {
+            setSelectedEmail(null);
+            setActiveView("list");
+          }}
+          onDraftGenerated={(text) => {
+            setReplyText(text);
+            setActiveView("detail"); // Go back to details to see the draft
+          }}
+          onBackToDetail={() => setActiveView("detail")}
         />
       </div>
     </div>
