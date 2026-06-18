@@ -12,8 +12,7 @@ export const auth = betterAuth({
     // Local dev origins
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://www.marilume.xyz",
-    "https://marilume.xyz",
+     process.env.BETTER_AUTH_URL!,
   ],
 
   user: {
